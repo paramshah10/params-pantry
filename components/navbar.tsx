@@ -62,7 +62,7 @@ const Navbar = () => {
         <div className={`${
             menuActive ? '' : 'hidden'
           }   w-full lg:inline-flex lg:flex-grow lg:w-auto`}>
-          <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
+          <div className='z-50 lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
             {pages.map(page =>
               <Link key={page.title} href={page.link}>
                 <a className='lg:inline-flex lg:w-auto w-full px-6 lg:py-2 py-4 rounded text-white font-bold items-center justify-center hover:text-slate-400 lowercase'>

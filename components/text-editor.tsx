@@ -1,5 +1,5 @@
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 
 const TextEditor = () => {
   const editor = useEditor({
@@ -7,7 +7,7 @@ const TextEditor = () => {
       StarterKit,
     ],
     content: '<p>Hello World! 🌎️</p>',
-  })
+  });
 
   // Get content from texteditor
   // editor?.getHTML();
@@ -16,7 +16,7 @@ const TextEditor = () => {
     <div>
       <EditorContent editor={editor} />
     </div>
-  )
+  );
 };
 
 export default TextEditor;

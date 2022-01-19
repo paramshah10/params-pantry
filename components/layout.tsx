@@ -35,7 +35,7 @@ const Layout = (props: LayoutProps) => {
       </main>
       <Footer />
     </>
-  )
-}
+  );
+};
 
 export default Layout;

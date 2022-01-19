@@ -12,17 +12,18 @@ const Navbar = () => {
 
   const handleClick = () => {
     setMenuActive(!menuActive);
+    setOpaqueNavbar(!menuActive);
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 80)
+      if (window.scrollY >= 100)
         setOpaqueNavbar(true);
       else
-        setOpaqueNavbar(false);
+        setOpaqueNavbar(menuActive || false);
     }
     window.addEventListener('scroll', handleScroll);
-  }, []);
+  }, [menuActive]);
   
   const pages: Page[] = [
     {
@@ -40,7 +41,7 @@ const Navbar = () => {
   ]
 
   return (
-    <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} py-3 px-8`}>
+    <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} ${menuActive ? '' : 'transition-colors'} py-3 px-8`}>
       <Link href='/'>
         <a className='inline-flex items-center p-2 mr-4 '>
           <img className='fill-current text-white h-8 w-8 mr-6' src='/apple-touch-icon.png' alt="Param's Pantry Logo"/>
@@ -69,14 +70,21 @@ const Navbar = () => {
         </svg>
       </button>
       <div className={`${
-          menuActive ? 'bg-black ease-in duration-500 will-change-transform' : 'hidden'
-        } w-screen lg:inline-flex lg:flex-grow lg:w-auto`}>
-        <div className='z-50 lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
+          menuActive ? 'bg-black' : ''
+        } h-screen lg:h-full w-screen lg:inline-flex lg:flex-grow lg:w-auto `}>
+        <div className={`${menuActive ? 'opacity-100' : 'lg:opacity-100 opacity-0'
+          } z-50 lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-center justify-center flex flex-col lg:h-auto 
+        transition-opacity duration-1000
+        `}>
           {pages.map(page =>
-            <Link key={page.title} href={page.link}>
-              <a className='lg:inline-flex lg:w-auto w-full px-6 lg:py-2 py-4 rounded text-white font-bold items-center justify-center hover:text-slate-400 lowercase'>
-                {page.title}
-              </a>
+            <Link key={page.title} href={page.link} passHref>
+              <div className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 lowercase relative leading-10 text-lg cursor-pointer
+              
+              `}>
+                <a>
+                  {page.title}
+                </a>
+              </div>
             </Link>
           )}
         </div>

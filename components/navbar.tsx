@@ -12,7 +12,7 @@ const Navbar = () => {
 
   const handleClick = () => {
     setMenuActive(!menuActive);
-    setOpaqueNavbar(!menuActive);
+    setOpaqueNavbar(!menuActive || window.scrollY >= 100);
   };
 
   useEffect(() => {
@@ -71,8 +71,8 @@ const Navbar = () => {
           />
         </svg>
       </button>
-      <div className={`${menuActive ? 'bg-black' : ''} 
-        h-screen lg:h-full w-screen lg:inline-flex lg:flex-grow lg:w-auto `}
+      <div className={`${menuActive ? 'bg-black h-screen' : ''} 
+         lg:h-full w-screen lg:inline-flex lg:flex-grow lg:w-auto `}
       >
         <div className={`${menuActive ? 'opacity-100' : 'lg:opacity-100 opacity-0'} 
           z-50 lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-center justify-center 

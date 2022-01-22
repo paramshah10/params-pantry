@@ -6,6 +6,7 @@ interface Page {
   link: string
 }
 
+
 const Navbar = () => {
   const [menuActive, setMenuActive] = useState(false);
   const [opaqueNavbar, setOpaqueNavbar] = useState(false);

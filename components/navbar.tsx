@@ -42,7 +42,7 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} 
-      ${menuActive ? '' : 'transition-colors'} py-3 px-8`}
+      ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8`}
     >
       <Link href='/'>
         <a className='inline-flex items-center p-2 mr-4 '>

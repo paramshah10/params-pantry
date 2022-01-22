@@ -25,6 +25,9 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    // disable next js warnings with using <img>
+    "@next/next/no-img-element": "off",
+
     'linebreak-style': [ 'error', 'unix' ],
 
     // Always add a trailing new line to the end of a file (clean diffs)

@@ -17,7 +17,7 @@ const HeartSVG = () => {
 
 const GithubSVG = () => {
   return (
-    <a rel="noopener noreferrer" href="https://github.com/paramshah10/params-pantry" aria-label="GitHub Repository">
+    <a rel="noopener noreferrer" target="_blank" href="https://github.com/paramshah10/params-pantry" aria-label="GitHub Repository">
       <svg className='mt-4 w-5' viewBox='0 0 496 512' xmlns='http://www.w3.org/2000/svg' role='img' data-fa-i2svg>
         <path
           fill="currentColor"
@@ -33,7 +33,7 @@ export default function Footer() {
   return (
     <footer className="flex flex-col py-8 border-t border-solid border-slate-300 justify-center items-center">
       <div className="text-xl font-bold">
-        Made by Param Shah
+        Made by <a rel="noopener noreferrer" target="_blank" href="https://paramshah.net" aria-label="Param Shah website"> Param Shah </a>
       </div>
       <div className="flex">
         <HeartSVG />

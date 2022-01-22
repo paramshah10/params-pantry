@@ -1,7 +1,6 @@
 module.exports = {
-  root: true,
   env: {
-    es6: true,
+    es2020: true,
     node: true,
   },
   extends: [
@@ -14,7 +13,7 @@ module.exports = {
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["tsconfig.json"],
+    project: "./tsconfig.json",
     sourceType: "module",
   },
   ignorePatterns: [
@@ -27,5 +26,6 @@ module.exports = {
   rules: {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
+    'linebreak-style': [ 'error', 'windows' ],
   },
 };

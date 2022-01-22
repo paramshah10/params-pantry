@@ -3,6 +3,15 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "husky": "^7.0.4"
+    "husky": "^7.0.4",
+    "lint-staged": "^12.2.2"
+  },
+  "lint-staged": {
+    "website/**/*.{ts,tsx,css}": [
+      "npm --prefix \"website/\" run lint:fix"
+    ],
+    "functions/**/*.{js,ts}": [
+      "npm --prefix \"functions/\" run lint:fix"
+    ]
   }
 }

@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import React from 'react';
+import RecipeCarousel from '../components/recipe-carousel';
 
 const Home: NextPage = () => {
   return (
@@ -15,8 +16,8 @@ const Home: NextPage = () => {
           Fasting is overrated.
         </h1>
       </div>
-      <div className="px-8 min-h-screen py-8 flex flex-1 flex-col items-center">
-        <h1 className="my-24 lg:text-7xl md:text-6xl text-5xl leading-snug ">
+      <div className="px-8 min-h-screen py-8 flex flex-col items-center text-center">
+        <h1 className="my-24 lg:text-7xl md:text-6xl text-5xl leading-snug">
           Welcome to {"Param's"} Pantry!
         </h1>
 
@@ -24,6 +25,7 @@ const Home: NextPage = () => {
           {"Here's"} what to cook this week
         </h2>
         {/* Carousel of cards for what to cook this week */}
+        <RecipeCarousel />
       </div>
     </>
   );

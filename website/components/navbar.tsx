@@ -1,6 +1,7 @@
 import Hamburger from 'hamburger-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { AppContext } from '../pages/_app';
 
 interface Page {
   title: string,
@@ -8,6 +9,7 @@ interface Page {
 }
 
 const Navbar = () => {
+  const { signIn, signOut, isAuthenticated } = useContext(AppContext);
   const [menuActive, setMenuActive] = useState(false);
   const [opaqueNavbar, setOpaqueNavbar] = useState(false);
 
@@ -24,6 +26,7 @@ const Navbar = () => {
         setOpaqueNavbar(menuActive || false);
     };
     window.addEventListener('scroll', handleScroll);
+    handleScroll();
   }, [menuActive]);
 
   const pages: Page[] = [
@@ -32,18 +35,18 @@ const Navbar = () => {
       link: '/',
     },
     {
-      title: 'Recipes',
+      title: 'Search',
       link: '/recipes',
     },
     {
-      title: 'Login',
-      link: '/login',
+      title: 'Discover',
+      link: '/discover',
     },
   ];
 
   return (
     <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} 
-      ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8`}
+      ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8 z-50`}
     >
       <Link href='/'>
         <a className='inline-flex items-center p-2 mr-4 '>
@@ -72,12 +75,18 @@ const Navbar = () => {
                 py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
                 lowercase relative leading-10 text-lg cursor-pointer`}
               >
-                <a>
-                  {page.title}
-                </a>
+                {page.title}
               </div>
             </Link>,
           )}
+          <div className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
+            py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
+            lowercase relative leading-10 text-lg cursor-pointer`}
+          >
+            <a onClick={isAuthenticated ? signOut : signIn} >
+              {isAuthenticated ? 'Sign Out' : 'Login'}
+            </a>
+          </div>
         </div>
       </div>
     </nav>

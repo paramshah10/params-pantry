@@ -1,3 +1,4 @@
+import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
 import { arrayUnion, doc, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import FIREBASE_CONFIG from '../../firebase.config';
@@ -18,11 +19,62 @@ interface PutProps {
   defaults?: Record<string, any>;
 }
 
+interface AuthActionResult {
+  code: number | string;
+  message?: string
+}
+
 export class _Firebase {
   public readonly db: Firestore;
+  public readonly provider: GoogleAuthProvider;
+  public readonly auth: Auth;
+  public loggedIn: boolean;
+  public user: User;
 
   constructor() {
     this.db = getFirestore();
+    this.provider = new GoogleAuthProvider();
+    this.loggedIn = false;
+    this.auth = getAuth();
+  }
+
+  public async googleSignIn(): Promise<AuthActionResult> {
+    try {
+      const result = await signInWithPopup(this.auth, this.provider);
+      this.user = result.user;
+      this.loggedIn = true;
+
+      return {
+        code: 200,
+      };
+    } catch (error) {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      return {
+        code: errorCode,
+        message: errorMessage,
+      };
+    }
+  }
+
+  public async signOut(): Promise<AuthActionResult> {
+    try {
+      await signOut(this.auth);
+      return {
+        code: 200,
+      };
+    } catch (error) {
+      // An error happened.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      return {
+        code: errorCode,
+        message: errorMessage,
+      };
+    }
   }
 
   public doc(path: string) {
@@ -33,6 +85,7 @@ export class _Firebase {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
     if (!item.exists()) return null;
+
     return item.data();
   }
 
@@ -56,6 +109,7 @@ export class _Firebase {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
     if (!item.exists) return false;
+
     return updateDoc(docRef, {[key]: arrayUnion(value)})
       .then(() => {
         return true;

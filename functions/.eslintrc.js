@@ -90,5 +90,8 @@ module.exports = {
         'method',
       ],
     }],
+
+    // Consistent spacing between curly braces
+    'object-curly-spacing': ["error", "always", { "arraysInObjects": true }],
   },
 };

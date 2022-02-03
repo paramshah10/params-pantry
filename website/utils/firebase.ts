@@ -1,7 +1,7 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
 import { arrayUnion, doc, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
-import FIREBASE_CONFIG from '../../firebase.config';
+import FIREBASE_CONFIG from '../firebase.config';
 
 !firebase.apps.length
   ? (firebase.initializeApp(FIREBASE_CONFIG))

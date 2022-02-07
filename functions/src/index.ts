@@ -72,6 +72,9 @@ export const weeklyRecipeUpdate = pubsub.schedule('0 0 * * MON').onRun(async () 
     scores.sort((a, b) => a[0] - b[0]);
     // add the recipe with the lowest score
     pickedRecipes.push(recipes[scores[0][1]]);
+
+    // remove that recipe so that we don't use it again
+    recipes.splice(scores[0][1], 1);
   }
 
   await db.doc('/website/weekly-recipes').update({

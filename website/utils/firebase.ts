@@ -81,7 +81,7 @@ export class _Firebase {
     return doc(this.db, path);
   }
 
-  public async get({path}): Promise<any | null> {
+  public async get(path: string): Promise<any | null> {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
     if (!item.exists()) return null;

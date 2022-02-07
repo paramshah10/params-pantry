@@ -1,8 +1,27 @@
 import type { NextPage } from 'next';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import RecipeCarousel from '../components/recipe-carousel';
+import { Recipe } from '../utils/recipes';
 
 const Home: NextPage = () => {
+  const [weeklyRecipes, setWeeklyRecipes] = useState<Recipe[]>([]);
+
+  const fetchWeeklyRecipes = async () => {
+    const image = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
+    const res = await window.fetch('/api/weekly-recipes');
+    if (!res.ok) { return; }
+
+    const data = await res.json();
+    data.recipes?.forEach(recipe => {
+      if (!recipe.image) recipe.image = image;
+    });
+    setWeeklyRecipes(data.recipes);
+  };
+
+  useEffect(() => {
+    void fetchWeeklyRecipes();
+  }, []);
+
   return (
     <>
       <div className='-z-50 flex flex-col justify-center items-center relative w-full h-screen'>
@@ -25,7 +44,9 @@ const Home: NextPage = () => {
           {"Here's"} what to cook this week
         </h2>
         {/* Carousel of cards for what to cook this week */}
-        <RecipeCarousel />
+        <RecipeCarousel recipes={weeklyRecipes} />
+
+        {/* Add random but higly rated recipes here; updates every day (similar to https://www.bonappetit.com/) */}
       </div>
     </>
   );

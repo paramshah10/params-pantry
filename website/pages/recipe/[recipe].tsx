@@ -11,7 +11,7 @@ export default function RecipePage(props: RecipePageProps) {
   const router = useRouter();
   const { recipe: recipeName } = router.query;
 
-  const [recipeData, setRecipeData] = useState<Recipe | undefined>(props.details);
+  const [recipeData, setRecipeData] = useState<Recipe | undefined>(undefined);
   const imageURL = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
 
   const fetchRecipe = async (name: string) => {
@@ -47,8 +47,8 @@ export default function RecipePage(props: RecipePageProps) {
           {recipeData?.name}
         </h1>
       </div>
-      <div className="flex flex-row items-center">
-        <div className="mt-8 min-h-screen py-24 items-center w-4/6">
+      <div className="flex flex-row items-center mt-32">
+        <div className="my-8 ml-4 min-h-screen items-center w-4/6 rounded-lg shadow-lg">
           <TextEditor editorContent={recipeData?.content}/>
         </div>
       </div>

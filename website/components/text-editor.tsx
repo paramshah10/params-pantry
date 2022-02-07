@@ -1,12 +1,12 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
-const TextEditor = () => {
+const TextEditor = ({ editorContent }) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
     ],
-    content: '<p>Hello World! 🌎️</p>',
+    content: editorContent,
     editorProps: {
       attributes: {
         class: 'prose prose-sm prose-slate sm:prose lg:prose-lg xl:prose-2xl m-5 focus:outline-none text-left',
@@ -19,7 +19,7 @@ const TextEditor = () => {
   // editor?.getHTML();
 
   return (
-    <div className='flex flex-row justify-left items-left '>
+    <div className='pl-8 justify-left items-left '>
       <EditorContent editor={editor}/>
     </div>
   );

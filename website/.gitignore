@@ -35,3 +35,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# temp util file to transfer receipes from notion to firebase
+notion2Firestore.js

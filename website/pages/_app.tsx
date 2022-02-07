@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
         setUserData(user);
       }
     });
-  }, []);
+  }, [firebase.auth]);
 
   const signIn = async () => {
     const result = await firebase.googleSignIn();

@@ -1,14 +1,16 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import EditButton from '../../components/edit-button';
 import TextEditor from '../../components/text-editor';
 import { fetchImageURL, Recipe } from '../../utils/recipes';
+import { AppContext } from '../_app';
 
 interface RecipePageProps {
   details?: Recipe
 }
 
 export default function RecipePage(props: RecipePageProps) {
+  const { isAuthenticated } = useContext(AppContext);
   const router = useRouter();
   const { recipe: recipeName } = router.query;
 
@@ -53,9 +55,13 @@ export default function RecipePage(props: RecipePageProps) {
         <h1 className="z-30 lg:leading-5 lg:text-8xl md:text-7xl text-6xl text-center font-bold text-white cursor-text">
           {recipeData?.name}
         </h1>
-        <div className='absolute z-30 right-24 top-24' style={showEditButton ? { display: 'block' } : {display: 'none'} }>
-          <EditButton type="photo" />
-        </div>
+        {
+          isAuthenticated ?
+            <div className='absolute z-30 right-24 top-24' style={showEditButton ? { display: 'block' } : { display: 'none' }}>
+              <EditButton type="photo" />
+            </div>
+            : <></>
+        }
       </div>
       <div className="flex flex-row items-center">
         <div className="my-8 ml-4 min-h-screen items-center w-4/6 rounded-lg shadow-lg">

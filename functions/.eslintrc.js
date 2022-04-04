@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
   env: {
     es2020: true,
@@ -13,7 +14,7 @@ module.exports = {
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: "./tsconfig.json",
+    project: path.join(__dirname, '/tsconfig.json'),
     sourceType: "module",
   },
   ignorePatterns: [
@@ -24,7 +25,7 @@ module.exports = {
     "import",
   ],
   rules: {
-    "quotes": ["error", "double"],
+    'quotes': [ 'error', 'single', { avoidEscape: true } ],
     "import/no-unresolved": 0,
     'linebreak-style': ['error', 'windows'],
 

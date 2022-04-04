@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
   env: {
     browser: true,
@@ -17,7 +18,7 @@ module.exports = {
     },
     ecmaVersion: 11,
     sourceType: 'module',
-    project: './tsconfig.json',
+    project: path.join(__dirname, '/tsconfig.json'),
   },
   plugins: [
     'import',

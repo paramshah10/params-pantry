@@ -22,3 +22,14 @@ export const kebabCase = string => string
   .replace(/([a-z])([A-Z])/g, '$1-$2')
   .replace(/[\s_]+/g, '-')
   .toLowerCase();
+
+
+export const fetchImageURL = async (location: string): Promise<string> => {
+  const res = await window.fetch('/api/fetch-firebase-image', {
+    method: 'POST',
+    body: JSON.stringify({ location }),
+  });
+
+  if (!res.ok) return;
+  return (await res.text());
+};

@@ -24,9 +24,9 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className='-z-50 flex flex-col justify-center items-center relative w-full h-screen'>
+      <div className='flex flex-col justify-center items-center relative w-full h-screen'>
         <div className={
-          `z-10 mx-0 my-0 overflow-hidden h-screen w-full absolute 
+          `-z-50 mx-0 my-0 overflow-hidden h-screen w-full absolute 
           bg-[url('../public/assets/pizza.jfif')] bg-no-repeat bg-center bg-fixed bg-cover`
         }
           // Bg image properties taken from https://css-tricks.com/perfect-full-page-background-image/

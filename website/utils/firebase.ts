@@ -1,6 +1,7 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
 import { arrayUnion, doc, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from 'firebase/storage';
 import FIREBASE_CONFIG from '../firebase.config';
 
 !firebase.apps.length
@@ -24,10 +25,21 @@ interface AuthActionResult {
   message?: string
 }
 
+interface FetchImageProps {
+  location: string
+}
+
+interface UploadImageProps {
+  file: File
+  location: string
+  contentType: string
+}
+
 export class _Firebase {
   public readonly db: Firestore;
   public readonly provider: GoogleAuthProvider;
   public readonly auth: Auth;
+  public readonly storage: FirebaseStorage;
   public loggedIn: boolean;
   public user: User;
 
@@ -36,6 +48,7 @@ export class _Firebase {
     this.provider = new GoogleAuthProvider();
     this.loggedIn = false;
     this.auth = getAuth();
+    this.storage = getStorage();
   }
 
   public async googleSignIn(): Promise<AuthActionResult> {
@@ -102,6 +115,26 @@ export class _Firebase {
       })
       .catch(() => {
         return false;
+      });
+  }
+
+  public getImageRef(location: string): StorageReference {
+    return ref(this.storage, location);
+  }
+
+  public async fetchImageURL({location}: FetchImageProps): Promise<string> {
+    const imageRef = this.getImageRef(location);
+    return getDownloadURL(imageRef);
+  }
+
+  public async uploadImage({ file, location, contentType }: UploadImageProps): Promise<string> {
+    const metadata = {
+      contentType: 'image/' + contentType,
+    };
+    const imageRef = this.getImageRef(location);
+    return uploadBytes(imageRef, file, metadata)
+      .then(() => {
+        return this.fetchImageURL({ location });
       });
   }
 

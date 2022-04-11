@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Recipe } from '../utils/recipes';
 import RecipeCard from './recipe-card';
-/* eslint-disable import/no-unresolved */
 import 'swiper/css';
 
 interface RecipeCarouselProps {

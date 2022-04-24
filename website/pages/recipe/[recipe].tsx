@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState, useContext } from 'react';
-import EditButton from '../../components/edit-button';
+import EditPictureButton from '../../components/edit-button';
 import TextEditor from '../../components/text-editor';
 import { fetchImageURL, Recipe } from '../../utils/recipes';
 import { AppContext } from '../_app';
@@ -54,9 +54,7 @@ export default function RecipePage(props: RecipePageProps) {
         </h1>
         {
           isAuthenticated ?
-            <div className='absolute z-30 right-24 top-24'>
-              <EditButton type="photo" />
-            </div>
+            <EditPictureButton recipeName={String(recipeName)}/>
             : <></>
         }
       </div>

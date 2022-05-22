@@ -5,8 +5,20 @@ import { _Firebase } from '../../utils/firebase';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const firebase = new _Firebase();
 
-  const body = JSON.parse(req.body);
-  const location = body.location;
-  const imageURL = await firebase.fetchImageURL({location});
-  res.status(200).json(imageURL);
+  const location = String(req.query.recipe);
+  const body: string = await req.body;
+
+  const imageURL = await firebase.uploadImage({ file: body, location });
+
+  // add the image property to the recipe document
+  await firebase.put({
+    path: 'recipes/' + location,
+    data: {
+      image: location,
+    },
+  });
+
+  res.status(200).json({
+    image: imageURL,
+  });
 };

@@ -1,7 +1,7 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
 import { arrayUnion, doc, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
-import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadBytes } from 'firebase/storage';
+import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadString } from 'firebase/storage';
 import FIREBASE_CONFIG from '../firebase.config';
 
 !firebase.apps.length
@@ -30,9 +30,8 @@ interface FetchImageProps {
 }
 
 interface UploadImageProps {
-  file: File
+  file: string
   location: string
-  contentType: string
 }
 
 export class _Firebase {
@@ -127,12 +126,9 @@ export class _Firebase {
     return getDownloadURL(imageRef);
   }
 
-  public async uploadImage({ file, location, contentType }: UploadImageProps): Promise<string> {
-    const metadata = {
-      contentType: 'image/' + contentType,
-    };
+  public async uploadImage({ file, location }: UploadImageProps): Promise<string> {
     const imageRef = this.getImageRef(location);
-    return uploadBytes(imageRef, file, metadata)
+    return uploadString(imageRef, file, 'data_url')
       .then(() => {
         return this.fetchImageURL({ location });
       });

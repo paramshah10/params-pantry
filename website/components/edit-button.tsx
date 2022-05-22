@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { Dispatch, SetStateAction, useState } from 'react';
 import ImageUploading, { ImageListType } from 'react-images-uploading';
 
@@ -28,9 +27,10 @@ const EditIcon = () => {
 
 interface EditImageModalProps {
   setRenderModal: Dispatch<SetStateAction<boolean>>
+  updateFirebaseImage: (image) => Promise<boolean>
 }
 
-const EditImageModal = ({ setRenderModal }: EditImageModalProps) => {
+const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalProps) => {
   const [images, setImages] = useState([]);
   const [imageUploaded, setImageUploaded] = useState(false);
 
@@ -41,8 +41,10 @@ const EditImageModal = ({ setRenderModal }: EditImageModalProps) => {
     setImageUploaded(true);
   };
 
-  const firebaseUpload = () => {
-    return;
+  const onFirebaseImageUpload = async (imageURL: string) => {
+    const firebaseUploaded = await updateFirebaseImage(imageURL);
+
+    setRenderModal(!firebaseUploaded);
   };
 
   return (
@@ -89,10 +91,10 @@ const EditImageModal = ({ setRenderModal }: EditImageModalProps) => {
                 {
                   imageUploaded ?
                     <div className='grid grid-cols-2 gap-12 m-12 h-8 text-white'>
-                      <button className='rounded drop-shadow-md border border-black bg-blue-500' onClick={() => firebaseUpload()}>Upload</button>
+                      <button className='rounded drop-shadow-md border border-black bg-blue-500' onClick={() => onFirebaseImageUpload(imageList[0].dataURL)}>Upload</button>
                       <button className='rounded drop-shadow-md border border-black bg-red-500' onClick={() => { onImageRemove(0); setImageUploaded(false); }}>Remove</button>
                     </div>
-                      :
+                    :
                     <></>
                 }
               </>
@@ -105,22 +107,22 @@ const EditImageModal = ({ setRenderModal }: EditImageModalProps) => {
 };
 
 interface EditPictureButtonProps {
-  recipeName: string
+  updateFirebaseImage: (file) => Promise<boolean>
 }
 
-export default function EditPictureButton(_: EditPictureButtonProps) {
+export default function EditPictureButton(props: EditPictureButtonProps) {
   const [renderModal, setRenderModal] = useState(false);
 
   return (
     <>
-     <div
+      <div
         className='absolute z-30 right-24 top-24 rounded-full cursor-pointer bg-white p-3'
         onClick={() => setRenderModal(!renderModal)}>
         <EditIcon />
       </div>
       {
         renderModal ?
-          <EditImageModal setRenderModal={setRenderModal} />
+          <EditImageModal setRenderModal={setRenderModal} updateFirebaseImage={props.updateFirebaseImage} />
           : <></>
       }
     </>

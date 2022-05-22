@@ -18,16 +18,41 @@ export default function RecipePage(props: RecipePageProps) {
   const imageURL = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
 
   const fetchRecipe = async (name: string) => {
+    if (!name) return;
+
     const res = await window.fetch('/api/fetch-recipe', {
       method: 'POST',
       body: JSON.stringify({ recipeName: name }),
     });
     if (!res.ok) return;
 
+    await updateImageState(res);
+  };
+
+  const updateImageState = async (res: Response) => {
     const data: Recipe = await res.json();
     if (data.image) data.image = await fetchImageURL(data.image);
     else data.image = imageURL;
     setRecipeData(data);
+  };
+
+  const updateFirebaseImage = async (file: string): Promise<boolean> => {
+    if (!file) return;
+
+    const res = await window.fetch(`/api/upload-firebase-image?recipe=${recipeName}`, {
+      method: 'POST',
+      body: file,
+    });
+    if (!res.ok) return false;
+
+    const data: { image: string } = await res.json();
+
+    const newRecipeData = Object.assign({}, recipeData);
+
+    newRecipeData.image = data.image;
+    await setRecipeData(newRecipeData);
+
+    return true;
   };
 
   useEffect(() => {
@@ -54,7 +79,7 @@ export default function RecipePage(props: RecipePageProps) {
         </h1>
         {
           isAuthenticated ?
-            <EditPictureButton recipeName={String(recipeName)}/>
+            <EditPictureButton updateFirebaseImage={updateFirebaseImage}/>
             : <></>
         }
       </div>

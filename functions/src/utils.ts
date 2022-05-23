@@ -1,4 +1,4 @@
-import { Proportion, Recipe } from '.';
+import { Proportion, RecipeMap } from '.';
 
 /**
  * List of common ingredients that can be removed while similarity matching
@@ -19,6 +19,8 @@ const COMMON_INGREDIENTS = [
   'cayenne',
   'water',
   'bell pepper',
+  'corn starch',
+  'sugar',
 ];
 
 /**
@@ -47,12 +49,16 @@ export const proportionsToIngredientList = (proportions: Proportion[] | undefine
 
 /**
  * Combine tags for given recipes
- * @param {(Recipe | undefined)[]} recipes
+ * @param {string[]} recipes
+ * @param {RecipeMap} recipeMap
  * @return {string[]} Combined tags
  */
-export const combineTags = (recipes: (Recipe | undefined)[]): string[] => {
+export const combineTags = (recipes: string[], recipeMap: RecipeMap): string[] => {
   const tags: string[] = [];
-  recipes.forEach((recipe) => tags.push(...recipe?.tags || []));
+  recipes.forEach((recipe) => tags.push(...recipeMap[recipe]?.tags || []));
 
   return tags;
 };
+
+export const kebabCase = (string: string): string =>
+  string.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').toLowerCase();

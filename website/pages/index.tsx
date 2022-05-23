@@ -13,8 +13,8 @@ const Home: NextPage = () => {
     const res = await window.fetch('/api/weekly-recipes');
     if (!res.ok) { return; }
 
-    const data = await res.json();
-    for (const recipe of data.recipes) {
+    const recipes = await res.json();
+    for (const recipe of recipes) {
       if (!recipe.image) recipe.image = image;
       // TODO: check if the auth token in the image url stays the same or not. if it is then you can just save the image url.
       // Test: image url for spicy zucchini quesadillas on April 10, 2022 was
@@ -22,7 +22,7 @@ const Home: NextPage = () => {
       else recipe.image = await fetchImageURL(recipe.image);
     }
 
-    setWeeklyRecipes(data.recipes);
+    setWeeklyRecipes(recipes);
   };
 
   useEffect(() => {

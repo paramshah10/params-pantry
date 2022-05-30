@@ -10,7 +10,7 @@ interface RecipeCarouselProps {
   recipes?: Recipe[]
 }
 
-export default function RecipeCarousel(props: RecipeCarouselProps) {
+export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
   const [numSlides, setNumSlides] = useState(3.2);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function RecipeCarousel(props: RecipeCarouselProps) {
       <Swiper slidesPerView={numSlides}
         className="flex flex-col items-center w-full"
       >
-        {props.recipes.map(recipe =>
+        {recipes.map(recipe =>
           <SwiperSlide key={recipe.name}>
             <RecipeCard recipe={recipe} />
           </SwiperSlide>,

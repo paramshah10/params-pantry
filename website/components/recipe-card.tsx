@@ -12,7 +12,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
         {/* Background image instead of img to maintain aspect ratio of the picture */}
         {/* <img src={props.img} className="w-56 h-72 rounded-xl shadow-xl bg-white" alt="Recipe food" /> */}
         <div className="w-56 h-72 rounded-xl shadow-xl bg-no-repeat bg-center bg-cover cursor-pointer"
-          style={{ backgroundImage: `url(${recipe.image})` }}
+          style={{ backgroundImage: `url(${recipe.imageUrl})` }}
         />
         <p className="text-xl mt-4 font-medium font-black text-center">
           {recipe.name}

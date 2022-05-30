@@ -16,6 +16,7 @@ export interface Recipe {
   proportions?: Proportion[]
   tags: string[]
   image?: string
+  imageUrl?: string
 }
 
 export const kebabCase = string => string

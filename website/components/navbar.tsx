@@ -35,8 +35,12 @@ const Navbar = () => {
       link: '/',
     },
     {
-      title: 'Search',
+      title: 'Recipes',
       link: '/recipes',
+    },
+    {
+      title: 'Search',
+      link: '/search',
     },
     {
       title: 'Discover',

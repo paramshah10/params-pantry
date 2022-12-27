@@ -1,6 +1,6 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
-import { arrayUnion, doc, Firestore, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, Firestore, getDoc, getDocs, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadString } from 'firebase/storage';
 import FIREBASE_CONFIG from '../firebase.config';
 
@@ -93,6 +93,10 @@ export class _Firebase {
     return doc(this.db, path);
   }
 
+  public collection(col: string) {
+    return collection(this.db, col);
+  }
+
   public async get(path: string): Promise<any | null> {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
@@ -115,6 +119,17 @@ export class _Firebase {
       .catch(() => {
         return false;
       });
+  }
+
+  public async queryCollection(col: string): Promise<any> {
+    const querySnapshot = await getDocs(this.collection(col));
+
+    const docs = [];
+    querySnapshot.forEach((recipeDoc) => {
+      docs.push(recipeDoc.data());
+    });
+
+    return docs;
   }
 
   public getImageRef(location: string): StorageReference {

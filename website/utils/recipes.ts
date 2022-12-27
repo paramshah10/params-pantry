@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { _Firebase } from './firebase';
 
 export interface Proportion {
   ingredient: string
@@ -25,12 +26,5 @@ export const kebabCase = string => string
   .toLowerCase();
 
 
-export const fetchImageURL = async (location: string): Promise<string> => {
-  const res = await window.fetch('/api/fetch-firebase-image', {
-    method: 'POST',
-    body: JSON.stringify({ location }),
-  });
-
-  if (!res.ok) return;
-  return (await res.text());
-};
+export const fetchImageURL = async (location: string, firebase: _Firebase): Promise<string> =>
+  await firebase.fetchImageURL({ location });

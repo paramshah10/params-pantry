@@ -10,7 +10,7 @@ interface RecipePageProps {
 }
 
 export default function RecipePage(props: RecipePageProps) {
-  const { isAuthenticated } = useContext(AppContext);
+  const { isAuthenticated, firebase } = useContext(AppContext);
   const router = useRouter();
   const { recipe: recipeName } = router.query;
 
@@ -20,36 +20,33 @@ export default function RecipePage(props: RecipePageProps) {
   const fetchRecipe = async (name: string) => {
     if (!name) return;
 
-    const res = await window.fetch('/api/fetch-recipe', {
-      method: 'POST',
-      body: JSON.stringify({ recipeName: name }),
-    });
-    if (!res.ok) return;
-
-    await updateImageState(res);
+    const data = await firebase.get(`/recipes/${name}`);
+    await updateImageState(data);
   };
 
-  const updateImageState = async (res: Response) => {
-    const data: Recipe = await res.json();
-    if (data.image) data.image = await fetchImageURL(data.image);
-    else data.image = imageURL;
+  const updateImageState = async (data: Recipe) => {
+    if (data.image)
+      data.image = await fetchImageURL(data.image, firebase);
+    else
+      data.image = imageURL;
+
     setRecipeData(data);
   };
 
   const updateFirebaseImage = async (file: string): Promise<boolean> => {
     if (!file) return;
 
-    const res = await window.fetch(`/api/upload-firebase-image?recipe=${recipeName}`, {
-      method: 'POST',
-      body: file,
+    const recipe = String(recipeName);
+    const imageUrl = await firebase.uploadImage({ file: file, location: recipe });
+    await firebase.put({
+      path: 'recipes/' + recipe,
+      data: {
+        image: recipe,
+      },
     });
-    if (!res.ok) return false;
-
-    const data: { image: string } = await res.json();
 
     const newRecipeData = Object.assign({}, recipeData);
-
-    newRecipeData.image = data.image;
+    newRecipeData.image = imageUrl;
     await setRecipeData(newRecipeData);
 
     return true;

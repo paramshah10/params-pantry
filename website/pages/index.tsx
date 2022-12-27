@@ -1,21 +1,23 @@
 import type { NextPage } from 'next';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import RecipeCarousel from '../components/recipe-carousel';
 import { fetchImageURL, Recipe } from '../utils/recipes';
+import { AppContext } from './_app';
 
 const Home: NextPage = () => {
   const [weeklyRecipes, setWeeklyRecipes] = useState<Recipe[]>([]);
+  const { firebase } = useContext(AppContext);
 
   const fetchWeeklyRecipes = async () => {
     const image = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
-    const res = await window.fetch('/api/weekly-recipes');
-    if (!res.ok) { return; }
+    const doc = await firebase.get('/website/weekly-recipes');
+    const recipeNames: string[] = doc.recipes;
 
-    const recipes: Recipe[] = await res.json();
+    const recipes = await Promise.all(recipeNames.map(recName => firebase.get('/recipes/' + recName)));
 
     const recipeImageUrls = await Promise.all(
       recipes.map(rec => {
-        if (rec.image) return fetchImageURL(rec.image);
+        if (rec.image) return fetchImageURL(rec.image, firebase);
         else return image;
       }),
     );

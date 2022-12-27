@@ -40,7 +40,7 @@ export default function AllRecipesPage(): JSX.Element  {
       }
       />
       <div className='pt-96 pb-24 px-24'>
-        <div className="grid grid-cols-4 grid-flow-row gap-x-6 gap-y-12">
+        <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 grid-flow-row gap-x-6 gap-y-12">
           {allRecipes.map(recipe => {
             if (!recipe.name) return;
             return <RecipeCard recipe={recipe} key={recipe.name} />;

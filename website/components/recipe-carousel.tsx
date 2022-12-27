@@ -37,9 +37,9 @@ export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
   });
 
   return (
-    <div className="w-full p-4 m-4">
+    <div className="w-full py-10 px-4 m-4 overflow-x-clip">
       <Swiper slidesPerView={numSlides}
-        className="flex flex-col items-center w-full"
+        className="flex flex-col items-center w-full h-96"
       >
         {recipes.map(recipe =>
           <SwiperSlide key={recipe.name}>

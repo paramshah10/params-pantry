@@ -1,11 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
+import RecipeToolbar from '../components/list-card-toggle';
 import RecipeCard from '../components/recipe-card';
 import { fetchImageURL, Recipe } from '../utils/recipes';
 import { AppContext } from './_app';
 
 export default function AllRecipesPage(): JSX.Element  {
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
-  const {firebase} = useContext(AppContext);
+  const { firebase } = useContext(AppContext);
+  const [listViewActive, setListViewActive] = useState(false);
 
   const fetchAllRecipes = async () => {
     const image = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
@@ -32,6 +34,25 @@ export default function AllRecipesPage(): JSX.Element  {
     void fetchAllRecipes();
   }, []);
 
+  const returnCardView = () => {
+    return (
+      <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 grid-flow-row gap-x-6 gap-y-12 m-4  transition-all duration-500 ease-in-out">
+        {allRecipes.map(recipe => {
+          if (!recipe.name) return;
+          return <RecipeCard recipe={recipe} key={recipe.name} />;
+        },
+        )}
+      </div>
+    );
+  };
+
+  const returnListView = () => {
+    return (
+      <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 grid-flow-row gap-x-6 gap-y-12  transition-all duration-500 ease-in-out">
+      </div>
+    );
+  };
+
   return (
     <div className=''>
       <div className={
@@ -40,13 +61,10 @@ export default function AllRecipesPage(): JSX.Element  {
       }
       />
       <div className='pt-96 pb-24 px-24'>
-        <div className="grid xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 xs:grid-cols-1 grid-flow-row gap-x-6 gap-y-12">
-          {allRecipes.map(recipe => {
-            if (!recipe.name) return;
-            return <RecipeCard recipe={recipe} key={recipe.name} />;
-          },
-          )}
-        </div>
+        <RecipeToolbar listViewActive={listViewActive} setListViewActive={setListViewActive} />
+        {
+          listViewActive ? returnListView() : returnCardView()
+        }
       </div>
     </div>
   );

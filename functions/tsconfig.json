@@ -1,19 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "outDir": "lib",
-    "sourceMap": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true
+  "compilerOptions": {                        /* https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping */
+    "removeComments": true,                   /* DO STRIP COMMENTS IN CDK PACKAGES. */
+    "lib": ["ES2023","esnext"],                        /* https://www.typescriptlang.org/tsconfig/#lib */
+    "target": "ES2022",                       /* Specify ECMAScript target version to match Node Runtime. */
+    "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
+    "declaration": true,                      /* Generates corresponding '.d.ts' file. */
+    "inlineSourceMap": true,                  /* Does not generate another '.map' file, writes transpiled mappings within js file. */
+    "inlineSources": true,                    /*  "" */
+    "outDir": "./dist",                       /* Redirect output structure to the directory. */
+    "strict": true,                           /* Enable all strict type-checking options. */
+    "esModuleInterop": true,                  /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
+    "noImplicitAny": true,                    /* No implied any types, need to define variable types. */
+    "skipLibCheck": true,                     /* (BAD) Skip type checking of declaration files. REMOVE AFTER UPGRADE TO NPMPM 1.10 DUE TO KNOW ISSUE WITH LODASH WEAKMAP TYPE */
   },
-  "compileOnSave": true,
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules/"
-  ]
+  "include": ["src/**/*","test/**/*","scripts/**/*"],
+  "exclude": ["build","node_modules", "dist"]
 }

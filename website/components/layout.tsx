@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Footer from './footer';
 import Navbar from './navbar';
+import { JSX } from 'react';
 
 interface LayoutProps {
   children: JSX.Element

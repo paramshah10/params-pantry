@@ -1,4 +1,4 @@
-import { pubsub } from 'firebase-functions';
+import { scheduler } from 'firebase-functions';
 import { initializeApp } from 'firebase-admin';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { combineTags, kebabCase, proportionsToIngredientList } from './utils';
@@ -28,7 +28,7 @@ export type RecipeMap = {[key: string]: Recipe}
 /**
  * Weekly recipe update functions to update the 7 weekly recipes. It runs every Monday at midnight.
  */
-export const weeklyRecipeUpdate = pubsub.schedule('0 0 * * MON').onRun(async () => {
+export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () => {
 // export const weeklyRecipeUpdate = https.onRequest(async (_, res) => {
   const recipeSnapshot = await db.collection('/recipes').orderBy('lastCooked', 'desc').get();
   const recipesDoc: Recipe[] = recipeSnapshot.docs.map((doc) => <Recipe>doc.data());

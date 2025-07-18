@@ -10,14 +10,14 @@ const Home: NextPage = () => {
 
   const fetchWeeklyRecipes = async () => {
     const image = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
-    const doc = await firebase.get('/website/weekly-recipes');
+    const doc = await firebase?.get('/website/weekly-recipes');
     const recipeNames: string[] = doc.recipes;
 
-    const recipes = await Promise.all(recipeNames.map(recName => firebase.get('/recipes/' + recName)));
+    const recipes = await Promise.all(recipeNames.map(recName => firebase?.get('/recipes/' + recName)));
 
     const recipeImageUrls = await Promise.all(
       recipes.map(rec => {
-        if (rec.image) return fetchImageURL(rec.image, firebase);
+        if (rec.image) return fetchImageURL(rec.image, firebase!!);
         else return image;
       }),
     );

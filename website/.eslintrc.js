@@ -2,7 +2,7 @@ const path = require('path');
 module.exports = {
   env: {
     browser: true,
-    es2020: true,
+    es2023: true,
   },
   extends: [
     'eslint:recommended',

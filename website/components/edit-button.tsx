@@ -27,7 +27,7 @@ const EditIcon = () => {
 
 interface EditImageModalProps {
   setRenderModal: Dispatch<SetStateAction<boolean>>
-  updateFirebaseImage: (image) => Promise<boolean>
+  updateFirebaseImage: (image: any) => Promise<boolean>
 }
 
 const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalProps) => {
@@ -91,7 +91,7 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
                 {
                   imageUploaded ?
                     <div className='grid grid-cols-2 gap-12 m-12 h-8 text-white'>
-                      <button className='rounded drop-shadow-md border border-black bg-blue-500' onClick={() => onFirebaseImageUpload(imageList[0].dataURL)}>Upload</button>
+                      <button className='rounded drop-shadow-md border border-black bg-blue-500' onClick={() => onFirebaseImageUpload(imageList[0].dataURL ?? '')}>Upload</button>
                       <button className='rounded drop-shadow-md border border-black bg-red-500' onClick={() => { onImageRemove(0); setImageUploaded(false); }}>Remove</button>
                     </div>
                     :
@@ -107,7 +107,7 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
 };
 
 interface EditPictureButtonProps {
-  updateFirebaseImage: (file) => Promise<boolean>
+  updateFirebaseImage: (file: any) => Promise<boolean>
 }
 
 export default function EditPictureButton(props: EditPictureButtonProps) {

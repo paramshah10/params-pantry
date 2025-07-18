@@ -20,13 +20,13 @@ export default function RecipePage(props: RecipePageProps) {
   const fetchRecipe = async (name: string) => {
     if (!name) return;
 
-    const data = await firebase.get(`/recipes/${name}`);
+    const data = await firebase?.get(`/recipes/${name}`);
     await updateImageState(data);
   };
 
   const updateImageState = async (data: Recipe) => {
     if (data.image)
-      data.image = await fetchImageURL(data.image, firebase);
+      data.image = await fetchImageURL(data.image, firebase!!);
     else
       data.image = imageURL;
 
@@ -34,11 +34,11 @@ export default function RecipePage(props: RecipePageProps) {
   };
 
   const updateFirebaseImage = async (file: string): Promise<boolean> => {
-    if (!file) return;
+    if (!file) return false;
 
     const recipe = String(recipeName);
-    const imageUrl = await firebase.uploadImage({ file: file, location: recipe });
-    await firebase.put({
+    const imageUrl = await firebase?.uploadImage({ file: file, location: recipe });
+    await firebase?.put({
       path: 'recipes/' + recipe,
       data: {
         image: recipe,

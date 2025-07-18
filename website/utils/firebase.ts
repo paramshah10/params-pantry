@@ -1,6 +1,6 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
-import { arrayUnion, collection, doc, Firestore, getDoc, getDocs, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, DocumentData, Firestore, getDoc, getDocs, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadString } from 'firebase/storage';
 import FIREBASE_CONFIG from '../firebase.config';
 
@@ -40,7 +40,7 @@ export class _Firebase {
   public readonly auth: Auth;
   public readonly storage: FirebaseStorage;
   public loggedIn: boolean;
-  public user: User;
+  public user: User | null;
 
   constructor() {
     this.db = getFirestore();
@@ -48,6 +48,7 @@ export class _Firebase {
     this.loggedIn = false;
     this.auth = getAuth();
     this.storage = getStorage();
+    this.user = null;
   }
 
   public async googleSignIn(): Promise<AuthActionResult> {
@@ -59,7 +60,7 @@ export class _Firebase {
       return {
         code: 200,
       };
-    } catch (error) {
+    } catch (error: any) {
       // Handle Errors here.
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -77,7 +78,7 @@ export class _Firebase {
       return {
         code: 200,
       };
-    } catch (error) {
+    } catch (error: any) {
       // An error happened.
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -124,7 +125,7 @@ export class _Firebase {
   public async queryCollection(col: string): Promise<any> {
     const querySnapshot = await getDocs(this.collection(col));
 
-    const docs = [];
+    const docs: DocumentData[] = [];
     querySnapshot.forEach((recipeDoc) => {
       docs.push(recipeDoc.data());
     });

@@ -20,11 +20,10 @@ export interface Recipe {
   imageUrl?: string
 }
 
-export const kebabCase = string => string
+export const kebabCase = (str: string) => str
   .replace(/([a-z])([A-Z])/g, '$1-$2')
   .replace(/[\s_]+/g, '-')
   .toLowerCase();
-
 
 export const fetchImageURL = async (location: string, firebase: _Firebase): Promise<string> =>
   await firebase.fetchImageURL({ location });

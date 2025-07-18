@@ -2,7 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useEffect } from 'react';
 
-const TextEditor = ({ editorContent }) => {
+const TextEditor = ({ editorContent }: { editorContent: any }) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -19,7 +19,7 @@ const TextEditor = ({ editorContent }) => {
   // editor?.getHTML();
 
   useEffect(() => {
-    editor?.commands.setContent(editorContent, true);
+    editor?.commands.setContent(editorContent);
   }, [editorContent]);
 
   return (

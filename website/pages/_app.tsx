@@ -1,7 +1,7 @@
 import '../styles/globals.css';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { AppProps } from 'next/app';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, JSX, useEffect, useState } from 'react';
 import Layout from '../components/layout';
 import { _Firebase } from '../utils/firebase';
 import { IUserData } from '../utils/user-data';
@@ -12,7 +12,7 @@ export interface IAppContext {
   isAuthenticated: boolean;
   signIn: () => void,
   signOut: () => void;
-  firebase: _Firebase;
+  firebase: _Firebase | null;
 }
 
 export const AppContext = createContext<IAppContext>({

@@ -41,7 +41,7 @@ export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
       <Swiper slidesPerView={numSlides}
         className="flex flex-col items-center w-full h-96"
       >
-        {recipes.map(recipe =>
+        {recipes?.map(recipe =>
           <SwiperSlide key={recipe.name}>
             <RecipeCard recipe={recipe} />
           </SwiperSlide>,

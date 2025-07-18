@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { JSX, useContext, useEffect, useState } from 'react';
 import RecipeToolbar from '../components/list-card-toggle';
 import RecipeCard from '../components/recipe-card';
 import { fetchImageURL, Recipe } from '../utils/recipes';
@@ -12,11 +12,11 @@ export default function AllRecipesPage(): JSX.Element  {
   const fetchAllRecipes = async () => {
     const image = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
 
-    const recipes = await firebase.queryCollection('recipes');
+    const recipes = await firebase?.queryCollection('recipes');
 
     const recipeImageUrls = await Promise.all(
-      recipes.map(rec => {
-        if (rec.image) return fetchImageURL(rec.image, firebase);
+      recipes.map((rec: any) => {
+        if (rec.image) return fetchImageURL(rec.image, firebase!!);
         else return image;
       }),
     );

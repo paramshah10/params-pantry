@@ -94,5 +94,8 @@ module.exports = {
 
     // Consistent spacing between curly braces
     'object-curly-spacing': ["error", "always", { "arraysInObjects": true }],
+
+    'arrow-parens': ['error', 'as-needed'],
+    'indent': ['error', 'ignoredNodes']
   },
 };

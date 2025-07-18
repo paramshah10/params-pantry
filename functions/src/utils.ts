@@ -28,9 +28,9 @@ const COMMON_INGREDIENTS = [
  * @param {string} ingredient ingredient to check
  * @return {boolean}
  */
-const isCommonIngredient = (ingredient: string): boolean => {
+function isCommonIngredient(ingredient: string): boolean {
   // Convert to lowercase to ensure consistency and do an includes since a bell pepper can be named as 'yellow bell pepper'
-  return COMMON_INGREDIENTS.some((ci) => ingredient.toLowerCase().includes(ci));
+  return COMMON_INGREDIENTS.some(ci => ingredient.toLowerCase().includes(ci));
 };
 
 /**
@@ -39,12 +39,9 @@ const isCommonIngredient = (ingredient: string): boolean => {
  * @return {string[]} Names of "uncommon" ingredients
  */
 export const proportionsToIngredientList = (proportions: Proportion[] | undefined): string[] => {
-  if (!proportions) return [];
-
-  const ingredientList = proportions.map((prop) => prop.ingredient);
-  const filteredIngredientList = ingredientList.filter((ingredient) => isCommonIngredient(ingredient));
-
-  return filteredIngredientList;
+  return proportions
+    ?.map(prop => prop.ingredient)
+    .filter(isCommonIngredient) ?? [];
 };
 
 /**
@@ -53,12 +50,12 @@ export const proportionsToIngredientList = (proportions: Proportion[] | undefine
  * @param {RecipeMap} recipeMap
  * @return {string[]} Combined tags
  */
-export const combineTags = (recipes: string[], recipeMap: RecipeMap): string[] => {
-  const tags: string[] = [];
-  recipes.forEach((recipe) => tags.push(...recipeMap[recipe]?.tags || []));
-
-  return tags;
+export function combineTags(recipes: string[], recipeMap: RecipeMap): string[] {
+  return recipes.flatMap(r => recipeMap.get(r)?.tags ?? []);
 };
 
-export const kebabCase = (string: string): string =>
-  string.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[\s_]+/g, '-').toLowerCase();
+export function kebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-').toLowerCase()
+}

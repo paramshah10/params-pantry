@@ -26,72 +26,126 @@ export interface Recipe {
 export type RecipeMap = Map<string, Recipe>;
 
 /**
- * Weekly recipe update functions to update the 7 weekly recipes. It runs every Monday at midnight.
+ * Weekly recipe update function to select 7 diverse recipes for the week.
+ * Runs every Monday at midnight using a scoring algorithm that considers:
+ * - Ingredient diversity (avoid similar ingredients)
+ * - Recipe freshness (prefer recipes not cooked recently)
+ * - Tag variety (ensure diverse meal types)
  */
-export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () => {
-// export const weeklyRecipeUpdate = https.onRequest(async (_, res) => {
-  const recipeSnapshot = await db.collection('/recipes').orderBy('lastCooked', 'desc').get();
-  const recipesDoc = recipeSnapshot.docs.map(doc => <Recipe> doc.data());
+export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (context) => {
+  try {
+    console.log('Starting weekly recipe update...');
+    
+    // Fetch all entrée recipes ordered by last cooked date (oldest first for better LRU logic)
+    const recipeSnapshot = await db.collection('/recipes')
+      .where('tags', 'array-contains', 'Entrée')
+      .orderBy('lastCooked', 'asc')
+      .get();
 
-  const recipes = recipesDoc.filter(recipe => recipe.tags.includes('Entrée'));
+    if (recipeSnapshot.empty) {
+      console.warn('No entrée recipes found');
+      return;
+    }
 
-  const recipeMap: RecipeMap = new Map();
+    const recipes = recipeSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data() as Recipe
+    }));
 
-  recipes.forEach(recipe => recipeMap.set(recipe.name, recipe));
+    console.log(`Found ${recipes.length} entrée recipes`);
 
-  const LRURecipes = recipes.filter(recipe => recipe.lastCooked.isEqual(recipes[0].lastCooked));
-  const randIndex = Math.floor(Math.random() * LRURecipes.length) ?? 0;
-  const pickedRecipes = [(LRURecipes.at(randIndex) ?? LRURecipes[0]).name];
+    if (recipes.length < 7) {
+      console.warn(`Only ${recipes.length} recipes available, need at least 7`);
+      return;
+    }
 
-  const currentIngredients = proportionsToIngredientList(recipeMap.get(pickedRecipes[0])?.proportions);
+    const recipeMap: RecipeMap = new Map();
+    recipes.forEach(recipe => recipeMap.set(recipe.name, recipe));
 
-  // for picking recipe for each day after the randomly picked one
-  for (let i = 0; i < 6; i++) {
-    // score each recipe based on similarity
-    const scores = recipes.map((recipe, index) => {
-      let score = 0;
+    // Find the least recently used recipes (oldest lastCooked date)
+    const oldestDate = recipes[0].lastCooked;
+    const lruRecipes = recipes.filter(recipe => recipe.lastCooked.isEqual(oldestDate));
+    
+    // Randomly select from LRU recipes as starting point
+    const randomIndex = Math.floor(Math.random() * lruRecipes.length);
+    const firstRecipe = lruRecipes[randomIndex];
+    const pickedRecipes = [firstRecipe.name];
+    
+    console.log(`Starting with recipe: ${firstRecipe.name}`);
 
-      let ingredientScore = 0;
-      for (const prop of proportionsToIngredientList(recipe.proportions)) {
-        if (currentIngredients.includes(prop)) {
-          ingredientScore++;
-        }
-      }
-      // number of days between the two dates
-      const dateScore =
-        (recipe.lastCooked.toMillis() - (recipeMap.get(pickedRecipes[0])?.lastCooked.toMillis() || 0)) / (1000 * 3600 * 24);
+    // Create a working copy of recipes (excluding the first picked recipe)
+    let availableRecipes = recipes.filter(recipe => recipe.name !== firstRecipe.name);
 
-      let tagScore = 0;
-      recipe.tags.forEach((tag) => {
-        if (combineTags(pickedRecipes, recipeMap).includes(tag)) tagScore++;
+    // Select remaining 6 recipes using scoring algorithm
+    for (let day = 1; day < 7; day++) {
+      if (availableRecipes.length === 0) break;
+
+      const scores = availableRecipes.map((recipe, index) => {
+        // Calculate ingredient overlap score (lower is better - less overlap)
+        const currentIngredients = new Set(
+          pickedRecipes.flatMap(recipeName => 
+            proportionsToIngredientList(recipeMap.get(recipeName)?.proportions)
+          )
+        );
+        const recipeIngredients = proportionsToIngredientList(recipe.proportions);
+        const ingredientOverlap = recipeIngredients.filter(ing => currentIngredients.has(ing)).length;
+        const ingredientScore = ingredientOverlap / Math.max(recipeIngredients.length, 1);
+
+        // Calculate days since last cooked (higher is better - longer since cooked)
+        const daysSinceCooked = (Date.now() - recipe.lastCooked.toMillis()) / (1000 * 60 * 60 * 24);
+        const dateScore = Math.min(daysSinceCooked / 30, 1); // Normalize to max 30 days
+
+        // Calculate tag diversity score (lower is better - less tag overlap)
+        const currentTags = new Set(combineTags(pickedRecipes, recipeMap));
+        const tagOverlap = recipe.tags.filter(tag => currentTags.has(tag)).length;
+        const tagScore = tagOverlap / Math.max(recipe.tags.length, 1);
+
+        // Combined score (lower is better)
+        const totalScore = (ingredientScore * 0.5) + (tagScore * 0.3) - (dateScore * 0.2);
+
+        return { score: totalScore, index, recipe: recipe.name };
       });
 
-      score = ingredientScore * 0.4 + dateScore * 0.4 + tagScore * 0.2;
+      // Sort by score (ascending - lower scores are better)
+      scores.sort((a, b) => a.score - b.score);
+      
+      const selectedRecipe = availableRecipes[scores[0].index];
+      pickedRecipes.push(selectedRecipe.name);
+      
+      console.log(`Day ${day + 1}: Selected ${selectedRecipe.name} (score: ${scores[0].score.toFixed(3)})`);
 
-      return [score, index];
+      // Remove selected recipe from available recipes
+      availableRecipes.splice(scores[0].index, 1);
+    }
+
+    console.log('Selected recipes for the week:', pickedRecipes);
+
+    // Create timestamp for batch update
+    const timestamp = Timestamp.now();
+
+    // Use batch write for better performance and atomicity
+    const batch = db.batch();
+
+    // Update weekly recipes document
+    const weeklyRecipesRef = db.doc('/website/weekly-recipes');
+    batch.update(weeklyRecipesRef, {
+      recipes: pickedRecipes.map(kebabCase),
+      lastUpdated: timestamp
     });
 
-    scores.sort((a, b) => a[0] - b[0]);
-    // add the recipe with the lowest score
-    pickedRecipes.push(recipes[scores[0][1]].name);
+    // Update lastCooked timestamp for all selected recipes
+    pickedRecipes.forEach(recipeName => {
+      const recipeRef = db.doc(`/recipes/${kebabCase(recipeName)}`);
+      batch.update(recipeRef, { lastCooked: timestamp });
+    });
 
-    // remove that recipe so that we don't use it again
-    recipes.splice(scores[0][1], 1);
+    // Commit all updates atomically
+    await batch.commit();
+    
+    console.log('Weekly recipe update completed successfully');
+    
+  } catch (error) {
+    console.error('Error in weekly recipe update:', error);
+    throw error; // Re-throw to ensure Cloud Functions logs the error
   }
-
-  // Add names of the recipes picked this week the document
-  await db.doc('/website/weekly-recipes').update({
-    recipes: pickedRecipes.map(kebabCase),
-  });
-
-  const date = new Date();
-  const timestamp = new Timestamp(date.getSeconds(), date.getMilliseconds());
-
-  // Add the last cooked date for each picked recipe to right now, and make sure its the same value
-  // Need the same value just because of how the logic above works
-  pickedRecipes.forEach(async (recipeName) => {
-    await db.doc('/recipes/' + kebabCase(recipeName)).update({
-      lastCooked: timestamp,
-    });
-  });
 });

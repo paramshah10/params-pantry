@@ -41,7 +41,7 @@ function isCommonIngredient(ingredient: string): boolean {
 export const proportionsToIngredientList = (proportions: Proportion[] | undefined): string[] => {
   return proportions
     ?.map(prop => prop.ingredient)
-    .filter(isCommonIngredient) ?? [];
+    .filter(ingredient => !isCommonIngredient(ingredient)) ?? [];
 };
 
 /**

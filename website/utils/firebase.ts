@@ -1,7 +1,7 @@
 import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, User, Auth } from 'firebase/auth';
 import firebase from 'firebase/compat/app';
-import { arrayUnion, collection, doc, DocumentData, Firestore, getDoc, getDocs, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
-import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadString } from 'firebase/storage';
+import { arrayUnion, collection, doc, DocumentData, Firestore, getDoc, getDocs, getFirestore, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { FirebaseStorage, getDownloadURL, getStorage, ref, StorageReference, uploadString, deleteObject } from 'firebase/storage';
 import FIREBASE_CONFIG from '../firebase.config';
 
 !firebase.apps.length
@@ -106,12 +106,12 @@ export class _Firebase {
     return item.data();
   }
 
-  public async put({path, data, defaults = {}}: PutProps): Promise<boolean> {
+  public async put({ path, data, defaults = {} }: PutProps): Promise<boolean> {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
     const action = item.exists()
       ? updateDoc(docRef, data)
-      : setDoc(docRef, {...data, ...defaults});
+      : setDoc(docRef, { ...data, ...defaults });
 
     return action
       .then(() => {
@@ -137,7 +137,7 @@ export class _Firebase {
     return ref(this.storage, location);
   }
 
-  public async fetchImageURL({location}: FetchImageProps): Promise<string> {
+  public async fetchImageURL({ location }: FetchImageProps): Promise<string> {
     const imageRef = this.getImageRef(location);
     return getDownloadURL(imageRef);
   }
@@ -150,12 +150,36 @@ export class _Firebase {
       });
   }
 
-  public async updateArrayField({path, key, value}: PutFieldProps): Promise<boolean> {
+  public async updateArrayField({ path, key, value }: PutFieldProps): Promise<boolean> {
     const docRef = this.doc(path);
     const item = await getDoc(docRef);
     if (!item.exists) return false;
 
-    return updateDoc(docRef, {[key]: arrayUnion(value)})
+    return updateDoc(docRef, { [key]: arrayUnion(value) })
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
+
+  public async delete(path: string): Promise<boolean> {
+    const docRef = this.doc(path);
+
+    return deleteDoc(docRef)
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
+
+  public async deleteImage(location: string): Promise<boolean> {
+    const imageRef = this.getImageRef(location);
+
+    return deleteObject(imageRef)
       .then(() => {
         return true;
       })

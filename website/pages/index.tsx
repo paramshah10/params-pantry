@@ -22,11 +22,12 @@ const Home: NextPage = () => {
       }),
     );
 
-    for (let i = 0; i < recipes.length; i++)
+    for (let i = 0; i < recipes.length; i++) {
       // TODO: check if the auth token in the image url stays the same or not. if it is then you can just save the image url.
       // Test: image url for spicy zucchini quesadillas on April 10, 2022 was
       // (https://firebasestorage.googleapis.com/v0/b/recipes-b2baa.appspot.com/o/spicy-zucchini-quesadillas.webp?alt=media&token=4b13dc3c-ee71-4257-bedb-f2bf30cf3d3a)
       recipes[i].imageUrl = recipeImageUrls[i];
+    }
 
     setWeeklyRecipes(recipes);
   };

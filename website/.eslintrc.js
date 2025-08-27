@@ -28,23 +28,23 @@ module.exports = {
   rules: {
     // disable next js warnings with using <img>
     "@next/next/no-img-element": "off",
-    
-    // Always add a trailing new line to the end of a file (clean diffs)
-    'eol-last': [ 'error', 'unix' ],
 
-    '@typescript-eslint/no-require-imports': [ 'error' ],
+    // Always add a trailing new line to the end of a file (clean diffs)
+    'eol-last': ['error', 'unix'],
+
+    '@typescript-eslint/no-require-imports': ['error'],
 
     // 2 space indentation
-    '@typescript-eslint/indent': [ 'error', 2 ],
+    '@typescript-eslint/indent': ['error', 2],
 
     // Variables should be used
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 
     // Style
-    'quotes': [ 'error', 'single', { avoidEscape: true } ],
+    'quotes': ['error', 'single', { avoidEscape: true }],
 
     // ensures clean diffs, see https://medium.com/@nikgraf/why-you-should-enforce-dangling-commas-for-multiline-statements-d034c98e36f8
-    'comma-dangle': [ 'error', 'always-multiline' ],
+    'comma-dangle': ['error', 'always-multiline'],
 
     // Require all imported dependencies are actually declared in package.json
     'import/no-extraneous-dependencies': [
@@ -56,7 +56,7 @@ module.exports = {
     ],
 
     // Require all imported libraries actually resolve (!!required for import/no-extraneous-dependencies to work!!)
-    'import/no-unresolved': [ 'error' ],
+    'import/no-unresolved': ['error'],
 
     // Require an ordering on all imports
     'import/order': ['warn', {

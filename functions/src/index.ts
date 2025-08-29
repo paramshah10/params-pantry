@@ -26,16 +26,16 @@ export interface Recipe {
 export type RecipeMap = Map<string, Recipe>;
 
 /**
- * Weekly recipe update function to select 7 diverse recipes for the week.
+ * Weekly recipe update function to select 4 diverse recipes for the week.
  * Runs every Monday at midnight using a scoring algorithm that considers:
  * - Ingredient diversity (avoid similar ingredients)
  * - Recipe freshness (prefer recipes not cooked recently)
  * - Tag variety (ensure diverse meal types)
  */
-export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (context) => {
+export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async context => {
   try {
     console.log('Starting weekly recipe update...');
-    
+
     // Fetch all entrée recipes ordered by last cooked date (oldest first for better LRU logic)
     const recipeSnapshot = await db.collection('/recipes')
       .where('tags', 'array-contains', 'Entrée')
@@ -49,13 +49,13 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (con
 
     const recipes = recipeSnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data() as Recipe
+      ...doc.data() as Recipe,
     }));
 
     console.log(`Found ${recipes.length} entrée recipes`);
 
-    if (recipes.length < 7) {
-      console.warn(`Only ${recipes.length} recipes available, need at least 7`);
+    if (recipes.length < 4) {
+      console.warn(`Only ${recipes.length} recipes available, need at least 4`);
       return;
     }
 
@@ -65,27 +65,27 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (con
     // Find the least recently used recipes (oldest lastCooked date)
     const oldestDate = recipes[0].lastCooked;
     const lruRecipes = recipes.filter(recipe => recipe.lastCooked.isEqual(oldestDate));
-    
+
     // Randomly select from LRU recipes as starting point
     const randomIndex = Math.floor(Math.random() * lruRecipes.length);
     const firstRecipe = lruRecipes[randomIndex];
     const pickedRecipes = [firstRecipe.name];
-    
+
     console.log(`Starting with recipe: ${firstRecipe.name}`);
 
     // Create a working copy of recipes (excluding the first picked recipe)
-    let availableRecipes = recipes.filter(recipe => recipe.name !== firstRecipe.name);
+    const availableRecipes = recipes.filter(recipe => recipe.name !== firstRecipe.name);
 
     // Select remaining 6 recipes using scoring algorithm
-    for (let day = 1; day < 7; day++) {
+    for (let day = 1; day < 4; day++) {
       if (availableRecipes.length === 0) break;
 
       const scores = availableRecipes.map((recipe, index) => {
         // Calculate ingredient overlap score (lower is better - less overlap)
         const currentIngredients = new Set(
-          pickedRecipes.flatMap(recipeName => 
-            proportionsToIngredientList(recipeMap.get(recipeName)?.proportions)
-          )
+          pickedRecipes.flatMap(recipeName =>
+            proportionsToIngredientList(recipeMap.get(recipeName)?.proportions),
+          ),
         );
         const recipeIngredients = proportionsToIngredientList(recipe.proportions);
         const ingredientOverlap = recipeIngredients.filter(ing => currentIngredients.has(ing)).length;
@@ -108,10 +108,10 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (con
 
       // Sort by score (ascending - lower scores are better)
       scores.sort((a, b) => a.score - b.score);
-      
+
       const selectedRecipe = availableRecipes[scores[0].index];
       pickedRecipes.push(selectedRecipe.name);
-      
+
       console.log(`Day ${day + 1}: Selected ${selectedRecipe.name} (score: ${scores[0].score.toFixed(3)})`);
 
       // Remove selected recipe from available recipes
@@ -130,7 +130,7 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (con
     const weeklyRecipesRef = db.doc('/website/weekly-recipes');
     batch.update(weeklyRecipesRef, {
       recipes: pickedRecipes.map(kebabCase),
-      lastUpdated: timestamp
+      lastUpdated: timestamp,
     });
 
     // Update lastCooked timestamp for all selected recipes
@@ -141,9 +141,8 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async (con
 
     // Commit all updates atomically
     await batch.commit();
-    
+
     console.log('Weekly recipe update completed successfully');
-    
   } catch (error) {
     console.error('Error in weekly recipe update:', error);
     throw error; // Re-throw to ensure Cloud Functions logs the error

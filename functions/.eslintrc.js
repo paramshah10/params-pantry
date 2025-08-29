@@ -96,6 +96,6 @@ module.exports = {
     'object-curly-spacing': ["error", "always", { "arraysInObjects": true }],
 
     'arrow-parens': ['error', 'as-needed'],
-    'indent': ['error', 'ignoredNodes']
+    'indent': ['error', 2]
   },
 };

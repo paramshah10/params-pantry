@@ -100,9 +100,33 @@ export default function RecipePage(props: RecipePageProps) {
             : <></>
         }
       </div>
-      <div className="flex flex-row items-center">
-        <div className="my-8 ml-4 min-h-screen items-center w-4/6 rounded-lg shadow-lg">
-          <TextEditor editorContent={recipeData?.content}/>
+      {/* Responsive content container */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Enhanced responsive text editor container */}
+          <div className="
+            bg-white rounded-lg shadow-lg overflow-hidden
+            min-h-[60vh] 
+            border border-gray-200
+          ">
+            <TextEditor 
+              editorContent={recipeData?.content || ''}
+              isAuthenticated={isAuthenticated}
+              recipeName={String(recipeName)}
+              onContentSave={(content) => {
+                // Content change callback - will be used in future tasks for auto-save
+                console.log('Content changed:', content);
+              }}
+              onSaveSuccess={() => {
+                setSuccessMessage('Recipe content saved successfully!');
+                setTimeout(() => setSuccessMessage(''), 3000);
+              }}
+              onSaveError={(error) => {
+                setErrorMessage(`Failed to save content: ${error}`);
+                setTimeout(() => setErrorMessage(''), 5000);
+              }}
+            />
+          </div>
         </div>
       </div>
       

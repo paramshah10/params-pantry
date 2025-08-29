@@ -9,7 +9,7 @@
       "npm run build"
     ],
     "source": ".",
-    "runtime": "nodejs20"
+    "runtime": "nodejs22"
   },
   "storage": {
     "rules": "storage.rules"

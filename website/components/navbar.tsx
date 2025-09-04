@@ -75,7 +75,7 @@ const Navbar = () => {
           flex flex-col lg:h-auto transition-opacity duration-1000`}
         >
           {pages.map(page => (
-            <Link key={page.title} href={page.link} passHref>
+            <Link key={page.title} href={page.link} passHref onClick={() => setMenuActive(false)}>
               <div className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
                 py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
                 lowercase relative leading-10 text-lg cursor-pointer`}

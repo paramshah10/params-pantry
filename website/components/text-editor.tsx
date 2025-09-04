@@ -51,9 +51,10 @@ const TextEditor = ({
 
   const [initialContent, setInitialContent] = useState<string>('');
 
-  // Refs for debounced auto-save
+  // Refs for debounced auto-save and authentication tracking
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>('');
+  const previousAuthStateRef = useRef<boolean>(isAuthenticated);
 
   // Save method with enhanced error handling and retry logic
   const saveContent = useCallback(async (content: string, isRetry: boolean = false): Promise<boolean> => {
@@ -215,7 +216,7 @@ const TextEditor = ({
         saveContent(content);
       }
     }, 3000);
-  }, [isAuthenticated, saveContent]);
+  }, [saveContent]); // Removed isAuthenticated dependency to prevent recreation on auth changes
 
   const editor = useEditor({
     extensions: [
@@ -286,8 +287,20 @@ const TextEditor = ({
 
   // Enhanced content loading with better preservation and error recovery
   useEffect(() => {
-    if (editor) {
-      setEditorState(prev => ({ ...prev, isLoading: true, isInitializing: false }));
+    if (editor && !editorState.isInitializing) {
+      // Only reload content if the editorContent actually changed, not just authentication state
+      const currentContent = editor.getHTML();
+      const hasCurrentContent = currentContent && currentContent !== '<p></p>' && currentContent.trim() !== '';
+
+      // Don't reload content if:
+      // 1. We have current content in the editor AND
+      // 2. The editorContent prop hasn't actually changed from what we last loaded
+      if (hasCurrentContent && editorContent === lastSavedContentRef.current) {
+        // Just update the editable state without reloading content
+        return;
+      }
+
+      setEditorState(prev => ({ ...prev, isLoading: true }));
 
       try {
         // Enhanced content preservation - handle different content formats
@@ -374,7 +387,7 @@ const TextEditor = ({
         }
       }
     }
-  }, [editor, editorContent, isAuthenticated]);
+  }, [editor, editorContent]);
 
   // Handle editor initialization
   useEffect(() => {
@@ -386,9 +399,30 @@ const TextEditor = ({
   // Update editor editable state when authentication changes
   useEffect(() => {
     if (editor) {
+      // Check if authentication state changed
+      const authStateChanged = previousAuthStateRef.current !== isAuthenticated;
+
+      if (authStateChanged) {
+        // Clear any pending auto-save when authentication state changes
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+          autoSaveTimeoutRef.current = null;
+        }
+
+        // Update the previous auth state
+        previousAuthStateRef.current = isAuthenticated;
+      }
+
       editor.setEditable(isAuthenticated);
+
+      // If user just signed out and has unsaved changes, preserve the content
+      if (!isAuthenticated && editorState.hasUnsavedChanges) {
+        // Keep the current content in the editor, just make it read-only
+        // Don't reset to initial content when signing out
+        console.log('User signed out with unsaved changes - preserving content in read-only mode');
+      }
     }
-  }, [editor, isAuthenticated]);
+  }, [editor, isAuthenticated, editorState.hasUnsavedChanges]);
 
   // Cleanup timeout on component unmount
   useEffect(() => {

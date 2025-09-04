@@ -10,15 +10,15 @@ interface DeleteButtonProps {
 
 const DeleteIcon = () => {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="20" 
-      height="20" 
-      viewBox="0 0 24 24" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
     >
-      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
     </svg>
   );
 };
@@ -45,11 +45,11 @@ const DeleteButton = ({ recipeName, onDeleteSuccess, onDeleteError }: DeleteButt
     }
 
     setIsDeleting(true);
-    
+
     try {
       // First, try to get the recipe to check if it exists and has an image
       const recipeData = await firebase.get(`recipes/${recipeName}`);
-      
+
       if (!recipeData) {
         setIsDeleting(false);
         setIsModalOpen(false);
@@ -59,7 +59,7 @@ const DeleteButton = ({ recipeName, onDeleteSuccess, onDeleteError }: DeleteButt
 
       // Delete recipe data from Firestore
       const recipeDeleted = await firebase.delete(`recipes/${recipeName}`);
-      
+
       if (!recipeDeleted) {
         setIsDeleting(false);
         onDeleteError('Failed to delete recipe data. Please check your permissions and try again.');
@@ -81,14 +81,13 @@ const DeleteButton = ({ recipeName, onDeleteSuccess, onDeleteError }: DeleteButt
       setIsDeleting(false);
       setIsModalOpen(false);
       onDeleteSuccess();
-      
     } catch (error) {
       setIsDeleting(false);
-      
+
       // Handle different types of errors
       if (error instanceof Error) {
         const errorMessage = error.message.toLowerCase();
-        
+
         if (errorMessage.includes('permission') || errorMessage.includes('unauthorized')) {
           onDeleteError('You don\'t have permission to delete this recipe.');
         } else if (errorMessage.includes('network') || errorMessage.includes('offline')) {
@@ -112,10 +111,10 @@ const DeleteButton = ({ recipeName, onDeleteSuccess, onDeleteError }: DeleteButt
           rounded drop-shadow-md border border-red-600 
           bg-red-500 text-white font-medium
           transition-colors duration-200
-          ${isDeleting 
-            ? 'opacity-50 cursor-not-allowed' 
-            : 'hover:bg-red-600 focus:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-          }
+          ${isDeleting
+      ? 'opacity-50 cursor-not-allowed'
+      : 'hover:bg-red-600 focus:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+    }
         `}
         onClick={handleDeleteClick}
         disabled={isDeleting}

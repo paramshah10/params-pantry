@@ -18,16 +18,15 @@
     "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
     "noImplicitAny": true, /* No implied any types, need to define variable types. */
-    "skipLibCheck": true, /* (BAD) Skip type checking of declaration files. REMOVE AFTER UPGRADE TO NPMPM 1.10 DUE TO KNOW ISSUE WITH LODASH WEAKMAP TYPE */
     "jsx": "preserve",
     "incremental": true,
     "resolveJsonModule": true,
     "allowJs": true,
     "noEmit": true,
+    "skipLibCheck": true,
     "isolatedModules": true
   },
   "include": [
-    "types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
   ],

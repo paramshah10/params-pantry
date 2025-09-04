@@ -34,7 +34,7 @@ class EditorErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to console for debugging
     console.error('Editor Error Boundary caught an error:', error, errorInfo);
-    
+
     // Update state with error info
     this.setState({
       error,
@@ -64,23 +64,23 @@ class EditorErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div 
+        <div
           className="bg-red-50 border border-red-200 rounded-lg p-6 m-4"
           role="alert"
           aria-live="assertive"
         >
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg 
-                className="h-5 w-5 text-red-400" 
-                viewBox="0 0 20 20" 
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
                 fill="currentColor"
                 aria-hidden="true"
               >
-                <path 
-                  fillRule="evenodd" 
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
-                  clipRule="evenodd" 
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
                 />
               </svg>
             </div>
@@ -90,7 +90,7 @@ class EditorErrorBoundary extends Component<Props, State> {
               </h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>
-                  The text editor encountered an unexpected error and couldn't load properly. 
+                  The text editor encountered an unexpected error and couldn't load properly.
                   This might be due to a browser compatibility issue or a temporary problem.
                 </p>
                 {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -100,7 +100,9 @@ class EditorErrorBoundary extends Component<Props, State> {
                     </summary>
                     <div className="mt-2 p-3 bg-red-100 rounded border text-xs font-mono">
                       <div className="mb-2">
-                        <strong>Error:</strong> {this.state.error.message}
+                        <strong>Error:</strong>
+                        {' '}
+                        {this.state.error.message}
                       </div>
                       <div className="mb-2">
                         <strong>Stack:</strong>

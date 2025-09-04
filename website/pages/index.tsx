@@ -38,7 +38,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className='flex flex-col justify-center items-center relative w-full h-screen'>
+      <div className="flex flex-col justify-center items-center relative w-full h-screen">
         <div className={
           `-z-50 mx-0 my-0 overflow-hidden h-screen w-full absolute 
           bg-[url('../public/assets/pizza.jfif')] bg-no-repeat bg-center bg-fixed bg-cover`
@@ -51,11 +51,15 @@ const Home: NextPage = () => {
       </div>
       <div className="px-8 min-h-screen py-8 flex flex-col items-center text-center">
         <h1 className="my-24 lg:text-7xl md:text-6xl text-5xl leading-snug">
-          Welcome to {"Param's"} Pantry!
+          Welcome to
+          {' '}
+          {'Param\'s'}
+          {' '}
+          Pantry!
         </h1>
 
-        <h2 className=''>
-          {"Here's"} what to cook this week
+        <h2 className="">
+          Here's what to cook this week
         </h2>
         {/* Carousel of cards for what to cook this week */}
         <RecipeCarousel recipes={weeklyRecipes} />

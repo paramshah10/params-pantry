@@ -71,10 +71,10 @@ const FormatButton = ({ editor, format, level, icon, label }: FormatButtonProps)
         p-1.5 sm:p-2 rounded-md border transition-all duration-200 
         text-xs sm:text-sm min-w-[32px] sm:min-w-[36px] h-8 sm:h-9
         flex items-center justify-center
-        ${active 
-          ? 'bg-blue-100 border-blue-300 text-blue-700 shadow-sm' 
-          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
-        }
+        ${active
+      ? 'bg-blue-100 border-blue-300 text-blue-700 shadow-sm'
+      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+    }
         disabled:opacity-50 disabled:cursor-not-allowed
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
       `}
@@ -103,7 +103,7 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
         ariaLabel: 'Saving content in progress'
       };
     }
-    
+
     if (hasUnsavedChanges) {
       return {
         className: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
@@ -111,7 +111,7 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
         ariaLabel: 'Save unsaved changes'
       };
     }
-    
+
     return {
       className: 'bg-gray-300 text-gray-500 cursor-not-allowed',
       disabled: true,
@@ -130,7 +130,7 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
           Unsaved
         </div>
       )}
-      
+
       {/* Save progress indicator */}
       {isSaving && (
         <div className="flex items-center text-xs text-blue-600">
@@ -138,7 +138,7 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
           Saving
         </div>
       )}
-      
+
       {/* Save button */}
       <button
         onClick={onSave}
@@ -149,33 +149,37 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
         `}
         aria-label={buttonState.ariaLabel}
         title={
-          isSaving 
-            ? 'Saving your changes...' 
-            : hasUnsavedChanges 
-              ? 'Click to save your changes' 
+          isSaving
+            ? 'Saving your changes...'
+            : hasUnsavedChanges
+              ? 'Click to save your changes'
               : 'No changes to save'
         }
       >
-        {isSaving ? (
-          <div className="flex items-center">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-            Saving...
-          </div>
-        ) : hasUnsavedChanges ? (
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-            </svg>
-            Save
-          </div>
-        ) : (
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            Saved
-          </div>
-        )}
+        {isSaving
+          ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Saving...
+              </div>
+            )
+          : hasUnsavedChanges
+            ? (
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  Save
+                </div>
+              )
+            : (
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Saved
+                </div>
+              )}
       </button>
     </div>
   );
@@ -186,10 +190,10 @@ const EditorToolbar = ({ editor, onSave, isSaving, hasUnsavedChanges }: EditorTo
   if (!editor) return null;
 
   return (
-    <div 
+    <div
       className="
-        sticky top-0 z-20 
-        border-b border-gray-200 bg-white/95 backdrop-blur-sm 
+        sticky top-0 z-20
+        border-b border-gray-200 bg-white/95 backdrop-blur-sm
         px-3 sm:px-4 py-2 sm:py-3
         shadow-sm
       "
@@ -251,21 +255,21 @@ const EditorToolbar = ({ editor, onSave, isSaving, hasUnsavedChanges }: EditorTo
               <FormatButton
                 editor={editor}
                 format="bulletList"
-                icon={
+                icon={(
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                   </svg>
-                }
+                )}
                 label="Bullet List"
               />
               <FormatButton
                 editor={editor}
                 format="orderedList"
-                icon={
+                icon={(
                   <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fillRule="evenodd" d="M3 4a1 1 0 000 2h.01a1 1 0 100-2H3zM6 4a1 1 0 011-1h9a1 1 0 110 2H7a1 1 0 01-1-1zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H3zm3 0a1 1 0 011-1h9a1 1 0 110 2H7a1 1 0 01-1-1zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H3zm3 0a1 1 0 011-1h9a1 1 0 110 2H7a1 1 0 01-1-1z" clipRule="evenodd" />
                   </svg>
-                }
+                )}
                 label="Numbered List"
               />
             </div>

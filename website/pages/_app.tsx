@@ -7,17 +7,17 @@ import { _Firebase } from '../utils/firebase';
 import { IUserData } from '../utils/user-data';
 
 export interface IAppContext {
-  userData: IUserData | null,
-  setUserData: (data: IUserData) => void,
+  userData: IUserData | null;
+  setUserData: (data: IUserData) => void;
   isAuthenticated: boolean;
-  signIn: () => void,
+  signIn: () => void;
   signOut: () => void;
   firebase: _Firebase | null;
 }
 
 export const AppContext = createContext<IAppContext>({
   userData: null,
-  setUserData: (_data) => null,
+  setUserData: _data => null,
   isAuthenticated: false,
   signIn: () => null,
   signOut: () => null,
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const [firebase] = useState(new _Firebase());
 
   useEffect(() => {
-    onAuthStateChanged(firebase.auth, (user) => {
+    onAuthStateChanged(firebase.auth, user => {
       if (user) {
         setIsAuthenticated(true);
         setUserData(user);
@@ -64,7 +64,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       signIn,
       signOut,
       firebase,
-    }}>
+    }}
+    >
       <Layout>
         <Component {...pageProps} />
       </Layout>

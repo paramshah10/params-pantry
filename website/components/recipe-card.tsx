@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { kebabCase, Recipe } from '../utils/recipes';
 
 interface RecipeCardProps {
-  recipe: Recipe
+  recipe: Recipe;
 }
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
@@ -11,7 +11,8 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
       <div className="first:pl-6 last:pr-[calc(100%-21.5rem)] flex flex-col items-center hover:transition hover:scale-105 hover:ease-in-out hover:duration-300">
         {/* Background image instead of img to maintain aspect ratio of the picture */}
         {/* <img src={props.img} className="w-56 h-72 rounded-xl shadow-xl bg-white" alt="Recipe food" /> */}
-        <div className="w-56 h-72 rounded-xl shadow-xl bg-no-repeat bg-center bg-cover cursor-pointer"
+        <div
+          className="w-56 h-72 rounded-xl shadow-xl bg-no-repeat bg-center bg-cover cursor-pointer"
           style={{ backgroundImage: `url("${recipe.imageUrl}")` }}
         />
         <p className="text-xl mt-4 font-medium font-black text-center">

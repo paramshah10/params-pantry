@@ -2,22 +2,22 @@ import { Timestamp } from 'firebase/firestore';
 import { _Firebase } from './firebase';
 
 export interface Proportion {
-  ingredient: string
-  maxQty: string
-  minQty: string
-  quantity: string
-  unit: string
+  ingredient: string;
+  maxQty: string;
+  minQty: string;
+  quantity: string;
+  unit: string;
 }
 
 export interface Recipe {
-  content?: string
-  created: Timestamp
-  lastCooked: Timestamp
-  name: string
-  proportions?: Proportion[]
-  tags: string[]
-  image?: string
-  imageUrl?: string
+  content?: string;
+  created: Timestamp;
+  lastCooked: Timestamp;
+  name: string;
+  proportions?: Proportion[];
+  tags: string[];
+  image?: string;
+  imageUrl?: string;
 }
 
 export const kebabCase = (str: string) => str

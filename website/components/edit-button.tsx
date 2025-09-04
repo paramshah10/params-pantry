@@ -3,8 +3,12 @@ import ImageUploading, { ImageListType } from 'react-images-uploading';
 
 const EditIcon = () => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-      width="25" height="25"
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      x="0px"
+      y="0px"
+      width="25"
+      height="25"
       viewBox="0 0 50 50"
       style={{
         fill: '#000000',
@@ -26,8 +30,8 @@ const EditIcon = () => {
 };
 
 interface EditImageModalProps {
-  setRenderModal: Dispatch<SetStateAction<boolean>>
-  updateFirebaseImage: (image: any) => Promise<boolean>
+  setRenderModal: Dispatch<SetStateAction<boolean>>;
+  updateFirebaseImage: (image: any) => Promise<boolean>;
 }
 
 const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalProps) => {
@@ -50,17 +54,17 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
   return (
     // Modal Opaque Background
     <div
-      className='fixed w-full h-full top-0 bg-white/50 z-50 cursor-pointer flex justify-center items-center'
-      onClick={(e) => {
+      className="fixed w-full h-full top-0 bg-white/50 z-50 cursor-pointer flex justify-center items-center"
+      onClick={e => {
         // only if the clicked target is the current element. i.e. don't close the modal
         // when clicking on the child components
         if (e.target === e.currentTarget) setRenderModal(false);
       }}
     >
       {/* Modal box */}
-      <div className='cursor-default w-5/12 drop-shadow-md'>
+      <div className="cursor-default w-5/12 drop-shadow-md">
         {/* Modal content box */}
-        <div className='rounded bg-white p-6 mx-auto w-10/12'>
+        <div className="rounded bg-white p-6 mx-auto w-10/12">
           <ImageUploading
             value={images}
             onChange={onChange}
@@ -83,19 +87,20 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
                   {...dragProps}
                 >
                   {
-                    imageUploaded ?
-                      <img src={imageList[0].dataURL} alt="Recipe image you just uploaded" className='max-h-[48rem]'/> :
-                      'Click or Drop Image here'
+                    imageUploaded
+                      ? <img src={imageList[0].dataURL} alt="Recipe image you just uploaded" className="max-h-[48rem]" />
+                      : 'Click or Drop Image here'
                   }
                 </div>
                 {
-                  imageUploaded ?
-                    <div className='grid grid-cols-2 gap-12 m-12 h-8 text-white'>
-                      <button className='rounded drop-shadow-md border border-black bg-blue-500' onClick={() => onFirebaseImageUpload(imageList[0].dataURL ?? '')}>Upload</button>
-                      <button className='rounded drop-shadow-md border border-black bg-red-500' onClick={() => { onImageRemove(0); setImageUploaded(false); }}>Remove</button>
-                    </div>
-                    :
-                    <></>
+                  imageUploaded
+                    ? (
+                        <div className="grid grid-cols-2 gap-12 m-12 h-8 text-white">
+                          <button className="rounded drop-shadow-md border border-black bg-blue-500" onClick={() => onFirebaseImageUpload(imageList[0].dataURL ?? '')}>Upload</button>
+                          <button className="rounded drop-shadow-md border border-black bg-red-500" onClick={() => { onImageRemove(0); setImageUploaded(false); }}>Remove</button>
+                        </div>
+                      )
+                    : <></>
                 }
               </>
             )}
@@ -107,7 +112,7 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
 };
 
 interface EditPictureButtonProps {
-  updateFirebaseImage: (file: any) => Promise<boolean>
+  updateFirebaseImage: (file: any) => Promise<boolean>;
 }
 
 export default function EditPictureButton(props: EditPictureButtonProps) {
@@ -116,13 +121,14 @@ export default function EditPictureButton(props: EditPictureButtonProps) {
   return (
     <>
       <div
-        className='absolute z-30 right-24 top-24 rounded-full cursor-pointer bg-white p-3'
-        onClick={() => setRenderModal(!renderModal)}>
+        className="absolute z-30 right-24 top-24 rounded-full cursor-pointer bg-white p-3"
+        onClick={() => setRenderModal(!renderModal)}
+      >
         <EditIcon />
       </div>
       {
-        renderModal ?
-          <EditImageModal setRenderModal={setRenderModal} updateFirebaseImage={props.updateFirebaseImage} />
+        renderModal
+          ? <EditImageModal setRenderModal={setRenderModal} updateFirebaseImage={props.updateFirebaseImage} />
           : <></>
       }
     </>

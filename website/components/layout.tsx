@@ -4,7 +4,7 @@ import Navbar from './navbar';
 import { JSX } from 'react';
 
 interface LayoutProps {
-  children: JSX.Element
+  children: JSX.Element;
 }
 
 const Layout = (props: LayoutProps) => {
@@ -13,7 +13,7 @@ const Layout = (props: LayoutProps) => {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="title" content="Param's Pantry" />
-        <meta name="description" content="Home to all of my recipes!"/>
+        <meta name="description" content="Home to all of my recipes!" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
         <meta property="og:type" content="website" />
@@ -27,7 +27,7 @@ const Layout = (props: LayoutProps) => {
         <meta property="twitter:description" content="Home to all of my recipes!" />
         <meta property="twitter:image" content="/favicon.ico" />
 
-        <title>{"Param's Pantry"}</title>
+        <title>Param's Pantry</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />

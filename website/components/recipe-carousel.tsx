@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 // Check out: https://github.com/import-js/eslint-plugin-import/issues/2266
-/* eslint-disable import/no-unresolved */
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Recipe } from '../utils/recipes';
 import RecipeCard from './recipe-card';
 import 'swiper/css';
 
 interface RecipeCarouselProps {
-  recipes?: Recipe[]
+  recipes?: Recipe[];
 }
 
 export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
@@ -28,7 +27,7 @@ export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
       else if (windowSize[0] < 1600)
         setNumSlides(4.5 + remainder + remainder2);
       else
-        setNumSlides(4.5 + remainder + 3*remainder2);
+        setNumSlides(4.5 + remainder + 3 * remainder2);
     };
 
     window.addEventListener('resize', updateSlides);
@@ -38,13 +37,15 @@ export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
 
   return (
     <div className="w-full py-10 px-4 m-4 overflow-x-clip">
-      <Swiper slidesPerView={numSlides}
+      <Swiper
+        slidesPerView={numSlides}
         className="flex flex-col items-center w-full h-96"
       >
-        {recipes?.map(recipe =>
+        {recipes?.map(recipe => (
           <SwiperSlide key={recipe.name}>
             <RecipeCard recipe={recipe} />
-          </SwiperSlide>,
+          </SwiperSlide>
+        ),
         )}
       </Swiper>
     </div>

@@ -4,7 +4,7 @@ import RecipeCard from '../components/recipe-card';
 import { fetchImageURL, Recipe } from '../utils/recipes';
 import { AppContext } from './_app';
 
-export default function AllRecipesPage(): JSX.Element  {
+export default function AllRecipesPage(): JSX.Element {
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
   const { firebase } = useContext(AppContext);
   const [listViewActive, setListViewActive] = useState(false);
@@ -54,13 +54,13 @@ export default function AllRecipesPage(): JSX.Element  {
   };
 
   return (
-    <div className=''>
+    <div className="">
       <div className={
         `-z-50 mx-0 my-0 overflow-hidden h-3/5 w-full absolute 
         bg-[url('../public/assets/pizza.jfif')] bg-no-repeat bg-center bg-fixed bg-cover`
       }
       />
-      <div className='pt-96 pb-24 px-24'>
+      <div className="pt-96 pb-24 px-24">
         <RecipeToolbar listViewActive={listViewActive} setListViewActive={setListViewActive} />
         {
           listViewActive ? returnListView() : returnCardView()

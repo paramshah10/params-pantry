@@ -7,7 +7,7 @@ import { fetchImageURL, Recipe } from '../../utils/recipes';
 import { AppContext } from '../_app';
 
 interface RecipePageProps {
-  details?: Recipe
+  details?: Recipe;
 }
 
 export default function RecipePage(props: RecipePageProps) {
@@ -58,7 +58,7 @@ export default function RecipePage(props: RecipePageProps) {
   const handleDeleteSuccess = () => {
     // Display success message before redirect
     setSuccessMessage('Recipe deleted successfully!');
-    
+
     // Redirect to recipes list page after showing success message
     setTimeout(() => {
       router.push('/recipes');
@@ -82,21 +82,21 @@ export default function RecipePage(props: RecipePageProps) {
 
   return (
     <>
-      <div className='flex flex-col justify-center items-center relative w-full h-[75vh] mb-32'
-      >
-        <div className={
-          `-z-50 mx-0 my-0 overflow-hidden h-screen w-full absolute 
+      <div className="flex flex-col justify-center items-center relative w-full h-[75vh] mb-32">
+        <div
+          className={
+            `-z-50 mx-0 my-0 overflow-hidden h-screen w-full absolute 
           bg-no-repeat bg-center bg-fixed bg-cover`
-        }
-        style={{backgroundImage: `url('${recipeData?.image}')`}}
+          }
+          style={{ backgroundImage: `url('${recipeData?.image}')` }}
         // Bg image properties taken from https://css-tricks.com/perfect-full-page-background-image/
         />
         <h1 className="z-30 lg:text-8xl md:text-7xl text-6xl text-center font-bold text-white cursor-text">
           {recipeData?.name}
         </h1>
         {
-          isAuthenticated ?
-            <EditPictureButton updateFirebaseImage={updateFirebaseImage}/>
+          isAuthenticated
+            ? <EditPictureButton updateFirebaseImage={updateFirebaseImage} />
             : <></>
         }
       </div>
@@ -106,14 +106,15 @@ export default function RecipePage(props: RecipePageProps) {
           {/* Enhanced responsive text editor container */}
           <div className="
             bg-white rounded-lg shadow-lg overflow-hidden
-            min-h-[60vh] 
+            min-h-[60vh]
             border border-gray-200
-          ">
-            <TextEditor 
+          "
+          >
+            <TextEditor
               editorContent={recipeData?.content || ''}
               isAuthenticated={isAuthenticated}
               recipeName={String(recipeName)}
-              onContentSave={(content) => {
+              onContentSave={content => {
                 // Content change callback - will be used in future tasks for auto-save
                 console.log('Content changed:', content);
               }}
@@ -121,7 +122,7 @@ export default function RecipePage(props: RecipePageProps) {
                 setSuccessMessage('Recipe content saved successfully!');
                 setTimeout(() => setSuccessMessage(''), 3000);
               }}
-              onSaveError={(error) => {
+              onSaveError={error => {
                 setErrorMessage(`Failed to save content: ${error}`);
                 setTimeout(() => setErrorMessage(''), 5000);
               }}
@@ -129,7 +130,7 @@ export default function RecipePage(props: RecipePageProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Error message display */}
       {errorMessage && (
         <div className="fixed top-4 right-4 z-50 max-w-md">

@@ -22,16 +22,16 @@ interface PutProps {
 
 interface AuthActionResult {
   code: number | string;
-  message?: string
+  message?: string;
 }
 
 interface FetchImageProps {
-  location: string
+  location: string;
 }
 
 interface UploadImageProps {
-  file: string
-  location: string
+  file: string;
+  location: string;
 }
 
 export class _Firebase {
@@ -126,7 +126,7 @@ export class _Firebase {
     const querySnapshot = await getDocs(this.collection(col));
 
     const docs: DocumentData[] = [];
-    querySnapshot.forEach((recipeDoc) => {
+    querySnapshot.forEach(recipeDoc => {
       docs.push(recipeDoc.data());
     });
 

@@ -18,7 +18,7 @@
     "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
     "noImplicitAny": true, /* No implied any types, need to define variable types. */
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "resolveJsonModule": true,
     "allowJs": true,

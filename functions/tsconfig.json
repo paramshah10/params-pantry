@@ -1,7 +1,7 @@
 {
   "compilerOptions": {                        /* https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping */
     "removeComments": true,                   /* DO STRIP COMMENTS IN CDK PACKAGES. */
-    "lib": ["ES2023","esnext"],                        /* https://www.typescriptlang.org/tsconfig/#lib */
+    "lib": ["ES2023","esnext"],               /* https://www.typescriptlang.org/tsconfig/#lib */
     "target": "ES2022",                       /* Specify ECMAScript target version to match Node Runtime. */
     "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
     "declaration": true,                      /* Generates corresponding '.d.ts' file. */

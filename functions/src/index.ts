@@ -1,10 +1,11 @@
 import * as admin from 'firebase-admin';
-import { scheduler } from 'firebase-functions';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { combineTags, kebabCase, proportionsToIngredientList } from './utils';
 
 admin.initializeApp();
 const db = getFirestore();
+const WEEKLY_RECIPE_COUNT = 4;
 
 export interface Proportion {
   readonly ingredient: string;
@@ -26,13 +27,13 @@ export interface Recipe {
 export type RecipeMap = Map<string, Recipe>;
 
 /**
- * Weekly recipe update function to select 4 diverse recipes for the week.
+ * Weekly recipe update function to select exactly 4 diverse recipes for the week.
  * Runs every Monday at midnight using a scoring algorithm that considers:
  * - Ingredient diversity (avoid similar ingredients)
  * - Recipe freshness (prefer recipes not cooked recently)
  * - Tag variety (ensure diverse meal types)
  */
-export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () => {
+export const weeklyRecipeUpdateV2 = onSchedule('0 0 * * MON', async () => {
   try {
     console.log('Starting weekly recipe update...');
 
@@ -54,8 +55,10 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () =
 
     console.log(`Found ${recipes.length} entrée recipes`);
 
-    if (recipes.length < 4) {
-      console.warn(`Only ${recipes.length} recipes available, need at least 4`);
+    if (recipes.length < WEEKLY_RECIPE_COUNT) {
+      console.warn(
+        `Only ${recipes.length} recipes available, need at least ${WEEKLY_RECIPE_COUNT}`,
+      );
       return;
     }
 
@@ -76,8 +79,8 @@ export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () =
     // Create a working copy of recipes (excluding the first picked recipe)
     const availableRecipes = recipes.filter(recipe => recipe.name !== firstRecipe.name);
 
-    // Select remaining 6 recipes using scoring algorithm
-    for (let day = 1; day < 4; day++) {
+    // Select remaining recipes using the scoring algorithm until we have 4 total
+    for (let day = 1; day < WEEKLY_RECIPE_COUNT; day++) {
       if (availableRecipes.length === 0) break;
 
       const scores = availableRecipes.map((recipe, index) => {

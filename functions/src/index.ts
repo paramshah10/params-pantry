@@ -1,9 +1,9 @@
+import * as admin from 'firebase-admin';
 import { scheduler } from 'firebase-functions';
-import { initializeApp } from 'firebase-admin';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { combineTags, kebabCase, proportionsToIngredientList } from './utils';
 
-initializeApp();
+admin.initializeApp();
 const db = getFirestore();
 
 export interface Proportion {
@@ -32,7 +32,7 @@ export type RecipeMap = Map<string, Recipe>;
  * - Recipe freshness (prefer recipes not cooked recently)
  * - Tag variety (ensure diverse meal types)
  */
-export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async context => {
+export const weeklyRecipeUpdate = scheduler.onSchedule('0 0 * * MON', async () => {
   try {
     console.log('Starting weekly recipe update...');
 

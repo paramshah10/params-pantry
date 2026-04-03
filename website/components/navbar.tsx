@@ -52,13 +52,11 @@ const Navbar = () => {
     <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} 
       ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8 z-50`}
     >
-      <Link href="/">
-        <a className="inline-flex items-center p-2 mr-4 ">
-          <img className="fill-current text-white h-8 w-8 mr-6" src="/apple-touch-icon.png" alt="Param's Pantry Logo" />
-          <span className="text-xl text-white font-bold tracking-wide">
-            {'Param\'s Pantry'}
-          </span>
-        </a>
+      <Link href="/" className="inline-flex items-center p-2 mr-4 ">
+        <img className="fill-current text-white h-8 w-8 mr-6" src="/apple-touch-icon.png" alt="Param's Pantry Logo" />
+        <span className="text-xl text-white font-bold tracking-wide">
+          {'Param\'s Pantry'}
+        </span>
       </Link>
       {/* Hamburger menu for smaller devices */}
       <button
@@ -75,24 +73,27 @@ const Navbar = () => {
           flex flex-col lg:h-auto transition-opacity duration-1000`}
         >
           {pages.map(page => (
-            <Link key={page.title} href={page.link} passHref onClick={() => setMenuActive(false)}>
-              <div className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
+            <Link
+              key={page.title}
+              href={page.link}
+              onClick={() => setMenuActive(false)}
+              className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
                 py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
                 lowercase relative leading-10 text-lg cursor-pointer`}
-              >
-                {page.title}
-              </div>
+            >
+              {page.title}
             </Link>
           ),
           )}
-          <div className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
-            py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
-            lowercase relative leading-10 text-lg cursor-pointer`}
+          <button
+            type="button"
+            onClick={isAuthenticated ? signOut : signIn}
+            className={`${menuActive ? '' : 'lg:block hidden'} lg:inline-flex lg:w-auto w-full px-6 lg:py-2 
+              py-4 rounded text-white font-bold items-center text-center justify-center hover:text-slate-400 
+              lowercase relative leading-10 text-lg cursor-pointer`}
           >
-            <a onClick={isAuthenticated ? signOut : signIn}>
-              {isAuthenticated ? 'Sign Out' : 'Login'}
-            </a>
-          </div>
+            {isAuthenticated ? 'Sign Out' : 'Login'}
+          </button>
         </div>
       </div>
     </nav>

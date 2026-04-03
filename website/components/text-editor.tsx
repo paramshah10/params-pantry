@@ -55,6 +55,7 @@ const TextEditor = ({
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>('');
   const previousAuthStateRef = useRef<boolean>(isAuthenticated);
+  const isHydratingContentRef = useRef<boolean>(false);
 
   // Save method with enhanced error handling and retry logic
   const saveContent = useCallback(async (content: string, isRetry: boolean = false): Promise<boolean> => {
@@ -222,6 +223,7 @@ const TextEditor = ({
     extensions: [
       StarterKit,
     ],
+    immediatelyRender: false,
     editorProps: {
       attributes: {
         class: [
@@ -265,6 +267,10 @@ const TextEditor = ({
     },
     // Content change detection using TipTap's onUpdate callback
     onUpdate: ({ editor }: { editor: Editor }) => {
+      if (isHydratingContentRef.current) {
+        return;
+      }
+
       const currentContent = editor.getHTML();
       const hasChanges = currentContent !== initialContent;
 
@@ -301,6 +307,7 @@ const TextEditor = ({
       }
 
       setEditorState(prev => ({ ...prev, isLoading: true }));
+      isHydratingContentRef.current = true;
 
       try {
         // Enhanced content preservation - handle different content formats
@@ -316,7 +323,9 @@ const TextEditor = ({
           const placeholderContent = isAuthenticated
             ? '<p>Start writing your recipe here...</p>'
             : '<p><em>No recipe content available.</em></p>';
-          editor.commands.setContent(placeholderContent);
+          editor.commands.setContent(placeholderContent, {
+            emitUpdate: false,
+          });
         } else {
           // Try to parse and validate HTML content before setting
           try {
@@ -385,6 +394,8 @@ const TextEditor = ({
             error: 'Critical error: Editor failed to initialize properly. Please refresh the page or try a different browser.',
           }));
         }
+      } finally {
+        isHydratingContentRef.current = false;
       }
     }
   }, [editor, editorContent]);

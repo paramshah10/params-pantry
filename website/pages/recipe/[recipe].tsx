@@ -21,13 +21,24 @@ export default function RecipePage(props: RecipePageProps) {
   const imageURL = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
 
   const fetchRecipe = async (name: string) => {
-    if (!name) return;
+    if (!name || !firebase) return;
 
     const data = await firebase?.get(`/recipes/${name}`);
+    if (!data) {
+      setRecipeData(undefined);
+      setErrorMessage('Recipe not found.');
+      return;
+    }
+
     await updateImageState(data);
   };
 
-  const updateImageState = async (data: Recipe) => {
+  const updateImageState = async (data: Recipe | undefined) => {
+    if (!data) {
+      setRecipeData(undefined);
+      return;
+    }
+
     if (data.image)
       data.image = await fetchImageURL(data.image, firebase!!);
     else
@@ -76,9 +87,10 @@ export default function RecipePage(props: RecipePageProps) {
     if (props.details) {
       setRecipeData(props.details);
     } else {
-      void fetchRecipe(String(recipeName));
+      if (!router.isReady || typeof recipeName !== 'string') return;
+      void fetchRecipe(recipeName);
     }
-  }, [props, recipeName]);
+  }, [props, recipeName, router.isReady, firebase]);
 
   return (
     <>

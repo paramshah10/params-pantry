@@ -93,6 +93,21 @@ function scaleQuantity(quantity: string, baseServings?: number, previewServings?
   return formatScaledQuantity((parsedQuantity / baseServings) * previewServings);
 }
 
+function formatIngredientLine({
+  ingredient,
+  quantity,
+  unit,
+}: {
+  ingredient: string;
+  quantity: string;
+  unit: string;
+}): string {
+  return [quantity, unit, ingredient]
+    .map(part => part.trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
 function normalizeIngredients(ingredients: Proportion[] | undefined): Proportion[] {
   if (!ingredients?.length) {
     return [];
@@ -165,7 +180,6 @@ export default function IngredientEditor({
   const visibleIngredients = draftIngredients.length ? draftIngredients : [createEmptyIngredient()];
   const parsedBaseServings = draftServings.trim() ? Number(draftServings) : undefined;
   const parsedPreviewServings = previewServings.trim() ? Number(previewServings) : parsedBaseServings;
-  const hasScaledPreview = !!parsedBaseServings && !!parsedPreviewServings && parsedBaseServings > 0 && parsedPreviewServings > 0 && parsedBaseServings !== parsedPreviewServings;
   const currentPreviewServings = parsedPreviewServings && parsedPreviewServings > 0
     ? Math.round(parsedPreviewServings)
     : parsedBaseServings && parsedBaseServings > 0
@@ -243,21 +257,13 @@ export default function IngredientEditor({
 
   return (
     <section className="px-6 py-6">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-            Ingredients
-          </p>
-        </div>
-      </div>
-
       {errorMessage && (
         <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" aria-live="polite">
           {errorMessage}
         </div>
       )}
 
-      <div className="mb-5 rounded-3xl border border-gray-200 bg-gray-50/80 p-4 sm:p-5">
+      <div className="mb-5 py-4 sm:py-5">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -311,21 +317,34 @@ export default function IngredientEditor({
           : <></>}
       </div>
 
-      <div className="space-y-3">
+      <div className="my-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-md font-bold uppercase tracking-[0.24em] text-gray-800">
+            Ingredients
+          </p>
+        </div>
+      </div>
+
+      <div className={isAuthenticated ? 'space-y-3' : 'space-y-2'}>
         {visibleIngredients.map((ingredient, index) => {
           const scaledQuantity = scaleQuantity(ingredient.quantity, parsedBaseServings, parsedPreviewServings);
+          const displayLine = formatIngredientLine({
+            ingredient: ingredient.ingredient,
+            quantity: scaledQuantity || ingredient.quantity,
+            unit: ingredient.unit,
+          });
 
           return (
-            <div
-              key={index}
-              className="grid gap-3 rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,2fr)_auto]"
-            >
-              <label className="block min-w-0">
-                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
-                  Qty
-                </span>
-                {isAuthenticated
-                  ? (
+            isAuthenticated
+              ? (
+                  <div
+                    key={index}
+                    className="grid gap-3 rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,2fr)_auto]"
+                  >
+                    <label className="block min-w-0">
+                      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Qty
+                      </span>
                       <input
                         type="text"
                         name={`ingredient-quantity-${index}`}
@@ -335,27 +354,12 @@ export default function IngredientEditor({
                         autoComplete="off"
                         className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
-                    )
-                  : (
-                      <div className="rounded-xl border border-transparent px-3 py-2 text-sm text-gray-700">
-                        {scaledQuantity || ingredient.quantity || '—'}
-                      </div>
-                    )}
-                {hasScaledPreview && scaledQuantity && isAuthenticated && (
-                  <p className="mt-2 text-xs font-medium text-blue-700">
-                    Preview:
-                    {' '}
-                    {scaledQuantity}
-                  </p>
-                )}
-              </label>
+                    </label>
 
-              <label className="block min-w-0">
-                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
-                  Unit
-                </span>
-                {isAuthenticated
-                  ? (
+                    <label className="block min-w-0">
+                      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Unit
+                      </span>
                       <input
                         type="text"
                         name={`ingredient-unit-${index}`}
@@ -365,20 +369,12 @@ export default function IngredientEditor({
                         autoComplete="off"
                         className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
-                    )
-                  : (
-                      <div className="rounded-xl border border-transparent px-3 py-2 text-sm text-gray-700">
-                        {ingredient.unit || '—'}
-                      </div>
-                    )}
-              </label>
+                    </label>
 
-              <label className="block min-w-0">
-                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
-                  Ingredient
-                </span>
-                {isAuthenticated
-                  ? (
+                    <label className="block min-w-0">
+                      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        Ingredient
+                      </span>
                       <input
                         type="text"
                         name={`ingredient-name-${index}`}
@@ -388,36 +384,33 @@ export default function IngredientEditor({
                         autoComplete="off"
                         className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
-                    )
-                  : (
-                      <div className="rounded-xl border border-transparent px-3 py-2 text-sm text-gray-700 break-words">
-                        {ingredient.ingredient || '—'}
-                      </div>
-                    )}
-                {hasScaledPreview && (
-                  <p className="mt-2 text-xs text-blue-700">
-                    {parsedPreviewServings}
-                    {' '}
-                    servings preview
-                  </p>
-                )}
-              </label>
+                    </label>
 
-              {isAuthenticated && (
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={() => removeIngredient(index)}
-                    aria-label={`Remove ingredient ${index + 1}`}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors duration-200 hover:border-red-300 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+                    <div className="flex items-end">
+                      <button
+                        type="button"
+                        onClick={() => removeIngredient(index)}
+                        aria-label={`Remove ingredient ${index + 1}`}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 transition-colors duration-200 hover:border-red-300 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+                      >
+                        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )
+              : (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3"
                   >
-                    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
+                    <span className="mt-[0.55rem] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" aria-hidden="true" />
+                    <p className="text-base font-normal leading-relaxed text-gray-800 break-words">
+                      {displayLine || '—'}
+                    </p>
+                  </div>
+                )
           );
         })}
       </div>

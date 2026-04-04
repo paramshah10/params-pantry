@@ -241,6 +241,33 @@ export default function RecipePage(props: RecipePageProps) {
         <h1 className="z-30 lg:text-8xl md:text-7xl text-6xl text-center font-bold text-white cursor-text">
           {recipeData?.name}
         </h1>
+        {(recipeData?.durationMinutes || recipeData?.servings) && (
+          <div className="z-30 mt-4 text-center text-sm font-semibold tracking-wide text-white/90">
+            <p>
+              (
+              {recipeData?.servings && (
+                <>
+                  {' '}
+                  serves:
+                  {' '}
+                  {recipeData.servings}
+                </>
+              )}
+              {recipeData?.servings && recipeData?.durationMinutes && ', '}
+              {recipeData?.durationMinutes && (
+                <>
+                  time:
+                  {' '}
+                  {recipeData.durationMinutes}
+                  {' '}
+                  min
+                </>
+              )}
+              {' '}
+              )
+            </p>
+          </div>
+        )}
         {
           isAuthenticated
             ? <EditPictureButton updateFirebaseImage={updateFirebaseImage} />
@@ -257,48 +284,20 @@ export default function RecipePage(props: RecipePageProps) {
           )}
           {recipeData && (
             <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
-              <aside className="lg:sticky lg:top-28">
-                <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                  <section className="border-b border-gray-200 px-6 py-6">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-                      Snapshot
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      {recipeData?.durationMinutes && (
-                        <div className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white">
-                          {recipeData.durationMinutes}
-                          {' '}
-                          min
-                        </div>
-                      )}
-                      {recipeData?.servings && (
-                        <div className="rounded-full border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900">
-                          Serves
-                          {' '}
-                          {recipeData.servings}
-                        </div>
-                      )}
-                    </div>
-                    {!recipeData?.durationMinutes && !recipeData?.servings && !recipeData?.tags?.length && (
-                      <p className="text-sm text-gray-500">
-                        Add timing, servings, or tags when you want more structure around the recipe.
-                      </p>
-                    )}
-                  </section>
-                  <TagEditor
-                    availableTags={availableTags}
-                    isAuthenticated={isAuthenticated}
-                    onSave={handleTagSave}
-                    selectedTags={recipeData.tags}
-                  />
-                  <IngredientEditor
-                    ingredients={recipeData.proportions}
-                    isAuthenticated={isAuthenticated}
-                    onSave={handleIngredientSave}
-                    servings={recipeData.servings}
-                  />
-                </div>
-              </aside>
+              <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                <TagEditor
+                  availableTags={availableTags}
+                  isAuthenticated={isAuthenticated}
+                  onSave={handleTagSave}
+                  selectedTags={recipeData.tags}
+                />
+                <IngredientEditor
+                  ingredients={recipeData.proportions}
+                  isAuthenticated={isAuthenticated}
+                  onSave={handleIngredientSave}
+                  servings={recipeData.servings}
+                />
+              </div>
 
               <div
                 className="

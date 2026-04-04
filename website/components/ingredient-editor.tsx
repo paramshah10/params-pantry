@@ -149,13 +149,17 @@ export default function IngredientEditor({
 
   useEffect(() => {
     const normalizedIngredients = normalizeIngredients(ingredients);
-    setDraftIngredients(normalizedIngredients);
+    setDraftIngredients(
+      normalizedIngredients.length || !isAuthenticated
+        ? normalizedIngredients
+        : [createEmptyIngredient()],
+    );
     setSavedIngredients(normalizedIngredients);
     setDraftServings(servings?.toString() ?? '');
     setSavedServings(servings?.toString() ?? '');
     setPreviewServings(servings?.toString() ?? '');
     setErrorMessage('');
-  }, [ingredients, servings]);
+  }, [ingredients, servings, isAuthenticated]);
 
   const hasUnsavedChanges = !areIngredientsEqual(draftIngredients, savedIngredients) || draftServings !== savedServings;
   const visibleIngredients = draftIngredients.length ? draftIngredients : [createEmptyIngredient()];
@@ -284,10 +288,10 @@ export default function IngredientEditor({
 
         {isAuthenticated
           ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
+              <div className="mt-4 grid gap-3]">
                 <label className="block min-w-0">
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Recipe Servings
+                    Change Default Recipe Servings
                   </span>
 
                   <input
@@ -313,12 +317,12 @@ export default function IngredientEditor({
 
           return (
             <div
-              key={`${index}-${ingredient.ingredient}-${ingredient.quantity}-${ingredient.unit}`}
+              key={index}
               className="grid gap-3 rounded-2xl border border-gray-200 bg-gray-50/80 p-4 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,2fr)_auto]"
             >
               <label className="block min-w-0">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Quantity
+                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
+                  Qty
                 </span>
                 {isAuthenticated
                   ? (
@@ -329,7 +333,7 @@ export default function IngredientEditor({
                         onChange={event => updateIngredient(index, 'quantity', event.target.value)}
                         placeholder="1"
                         autoComplete="off"
-                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
                     )
                   : (
@@ -347,7 +351,7 @@ export default function IngredientEditor({
               </label>
 
               <label className="block min-w-0">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
                   Unit
                 </span>
                 {isAuthenticated
@@ -359,7 +363,7 @@ export default function IngredientEditor({
                         onChange={event => updateIngredient(index, 'unit', event.target.value)}
                         placeholder="cup"
                         autoComplete="off"
-                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
                     )
                   : (
@@ -370,7 +374,7 @@ export default function IngredientEditor({
               </label>
 
               <label className="block min-w-0">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <span className="mb-2 block text-xs text-center font-semibold uppercase tracking-wide text-gray-500">
                   Ingredient
                 </span>
                 {isAuthenticated
@@ -382,7 +386,7 @@ export default function IngredientEditor({
                         onChange={event => updateIngredient(index, 'ingredient', event.target.value)}
                         placeholder="Coconut milk…"
                         autoComplete="off"
-                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-2 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                       />
                     )
                   : (

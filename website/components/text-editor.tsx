@@ -26,6 +26,17 @@ interface TextEditorState {
   showUnsavedWarning: boolean;
 }
 
+function hasMeaningfulEditorContent(content: string): boolean {
+  const normalizedContent = content
+    .replace(/<p><\/p>/g, '')
+    .replace(/<p><br><\/p>/g, '')
+    .replace(/<p><br\s*\/?><\/p>/g, '')
+    .replace(/\s+/g, '')
+    .trim();
+
+  return normalizedContent.length > 0;
+}
+
 const TextEditor = ({
   editorContent,
   isAuthenticated,
@@ -56,6 +67,7 @@ const TextEditor = ({
   const lastSavedContentRef = useRef<string>('');
   const previousAuthStateRef = useRef<boolean>(isAuthenticated);
   const isHydratingContentRef = useRef<boolean>(false);
+  const hasLoadedInitialContentRef = useRef<boolean>(false);
 
   // Save method with enhanced error handling and retry logic
   const saveContent = useCallback(async (content: string, isRetry: boolean = false): Promise<boolean> => {
@@ -100,7 +112,7 @@ const TextEditor = ({
     }
 
     // Content validation
-    if (!content || content.trim().length === 0) {
+    if (!content || !hasMeaningfulEditorContent(content)) {
       const errorMessage = 'Cannot save empty content. Please add some content and try again.';
       setEditorState(prev => ({
         ...prev,
@@ -267,7 +279,7 @@ const TextEditor = ({
     },
     // Content change detection using TipTap's onUpdate callback
     onUpdate: ({ editor }: { editor: Editor }) => {
-      if (isHydratingContentRef.current) {
+      if (isHydratingContentRef.current || !hasLoadedInitialContentRef.current) {
         return;
       }
 
@@ -308,6 +320,12 @@ const TextEditor = ({
 
       setEditorState(prev => ({ ...prev, isLoading: true }));
       isHydratingContentRef.current = true;
+      hasLoadedInitialContentRef.current = false;
+
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
 
       try {
         // Enhanced content preservation - handle different content formats
@@ -354,6 +372,7 @@ const TextEditor = ({
 
         setInitialContent(contentToSet);
         lastSavedContentRef.current = contentToSet;
+        hasLoadedInitialContentRef.current = true;
 
         setEditorState(prev => ({
           ...prev,
@@ -378,6 +397,7 @@ const TextEditor = ({
 
           setInitialContent('');
           lastSavedContentRef.current = '';
+          hasLoadedInitialContentRef.current = true;
 
           setEditorState(prev => ({
             ...prev,
@@ -398,7 +418,7 @@ const TextEditor = ({
         isHydratingContentRef.current = false;
       }
     }
-  }, [editor, editorContent]);
+  }, [editor, editorContent, editorState.isInitializing, isAuthenticated]);
 
   // Handle editor initialization
   useEffect(() => {

@@ -16,6 +16,7 @@ export default function RecipePage(props: RecipePageProps) {
   const { recipe: recipeName } = router.query;
 
   const [recipeData, setRecipeData] = useState<Recipe | undefined>(undefined);
+  const [isRecipeLoading, setIsRecipeLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const imageURL = 'https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=160&q=80';
@@ -23,14 +24,19 @@ export default function RecipePage(props: RecipePageProps) {
   const fetchRecipe = async (name: string) => {
     if (!name || !firebase) return;
 
-    const data = await firebase?.get(`/recipes/${name}`);
-    if (!data) {
-      setRecipeData(undefined);
-      setErrorMessage('Recipe not found.');
-      return;
-    }
+    setIsRecipeLoading(true);
+    try {
+      const data = await firebase.get(`/recipes/${name}`);
+      if (!data) {
+        setRecipeData(undefined);
+        setErrorMessage('Recipe not found.');
+        return;
+      }
 
-    await updateImageState(data);
+      await updateImageState(data);
+    } finally {
+      setIsRecipeLoading(false);
+    }
   };
 
   const updateImageState = async (data: Recipe | undefined) => {
@@ -86,6 +92,7 @@ export default function RecipePage(props: RecipePageProps) {
   useEffect(() => {
     if (props.details) {
       setRecipeData(props.details);
+      setIsRecipeLoading(false);
     } else {
       if (!router.isReady || typeof recipeName !== 'string') return;
       void fetchRecipe(recipeName);
@@ -115,6 +122,11 @@ export default function RecipePage(props: RecipePageProps) {
       {/* Responsive content container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
+          {isRecipeLoading && (
+            <div className="mb-8 rounded-3xl border border-gray-200 bg-white px-6 py-8 text-center text-gray-600 shadow-sm">
+              Loading recipe…
+            </div>
+          )}
           {(recipeData?.durationMinutes || recipeData?.tags?.length || recipeData?.proportions?.length) && (
             <div className="mb-8 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
               <div className="grid gap-0 md:grid-cols-[0.65fr_minmax(0,1fr)]">
@@ -166,31 +178,32 @@ export default function RecipePage(props: RecipePageProps) {
               </div>
             </div>
           )}
-          {/* Enhanced responsive text editor container */}
-          <div className="
-            bg-white rounded-lg shadow-lg overflow-hidden
-            min-h-[60vh]
-            border border-gray-200
-          "
-          >
-            <TextEditor
-              editorContent={recipeData?.content || ''}
-              isAuthenticated={isAuthenticated}
-              recipeName={String(recipeName)}
-              onContentSave={content => {
-                // Content change callback - will be used in future tasks for auto-save
-                console.log('Content changed:', content);
-              }}
-              onSaveSuccess={() => {
-                setSuccessMessage('Recipe content saved successfully!');
-                setTimeout(() => setSuccessMessage(''), 3000);
-              }}
-              onSaveError={error => {
-                setErrorMessage(`Failed to save content: ${error}`);
-                setTimeout(() => setErrorMessage(''), 5000);
-              }}
-            />
-          </div>
+          {recipeData && (
+            <div className="
+              bg-white rounded-lg shadow-lg overflow-hidden
+              min-h-[60vh]
+              border border-gray-200
+            "
+            >
+              <TextEditor
+                editorContent={recipeData.content || ''}
+                isAuthenticated={isAuthenticated}
+                recipeName={String(recipeName)}
+                onContentSave={content => {
+                  // Content change callback - will be used in future tasks for auto-save
+                  console.log('Content changed:', content);
+                }}
+                onSaveSuccess={() => {
+                  setSuccessMessage('Recipe content saved successfully!');
+                  setTimeout(() => setSuccessMessage(''), 3000);
+                }}
+                onSaveError={error => {
+                  setErrorMessage(`Failed to save content: ${error}`);
+                  setTimeout(() => setErrorMessage(''), 5000);
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

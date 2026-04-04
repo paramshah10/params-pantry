@@ -115,6 +115,57 @@ export default function RecipePage(props: RecipePageProps) {
       {/* Responsive content container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
+          {(recipeData?.durationMinutes || recipeData?.tags?.length || recipeData?.proportions?.length) && (
+            <div className="mb-8 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+              <div className="grid gap-0 md:grid-cols-[0.65fr_minmax(0,1fr)]">
+                <section className="border-b border-gray-200 px-6 py-6 md:border-b-0 md:border-r">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
+                    Snapshot
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {recipeData?.durationMinutes && (
+                      <div className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white">
+                        {recipeData.durationMinutes}
+                        {' '}
+                        min
+                      </div>
+                    )}
+                    {recipeData?.tags?.map(tag => (
+                      <div key={tag} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700">
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+                {recipeData?.proportions?.length
+                  ? (
+                      <section className="px-6 py-6">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
+                          Ingredients
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-700">
+                          {recipeData.proportions.map((proportion, index) => (
+                            <li key={`${proportion.ingredient}-${index}`} className="flex gap-2">
+                              <span className="font-semibold text-gray-900">
+                                {[proportion.quantity, proportion.unit].filter(Boolean).join(' ')}
+                              </span>
+                              <span>{proportion.ingredient}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )
+                  : (
+                      <section className="px-6 py-6">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
+                          Ingredients
+                        </p>
+                        <p className="text-sm text-gray-500">No structured ingredients yet.</p>
+                      </section>
+                    )}
+              </div>
+            </div>
+          )}
           {/* Enhanced responsive text editor container */}
           <div className="
             bg-white rounded-lg shadow-lg overflow-hidden

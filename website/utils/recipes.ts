@@ -12,6 +12,7 @@ export interface Proportion {
 export interface Recipe {
   content?: string;
   created: Timestamp;
+  durationMinutes?: number;
   lastCooked: Timestamp;
   name: string;
   proportions?: Proportion[];

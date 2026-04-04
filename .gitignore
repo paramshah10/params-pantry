@@ -8,3 +8,5 @@ node_modules/
 .vscode
 
 .omx/
+.codex/
+.agents/

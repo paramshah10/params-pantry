@@ -1,5 +1,6 @@
 import Hamburger from 'hamburger-react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../pages/_app';
 
@@ -10,8 +11,11 @@ interface Page {
 
 const Navbar = () => {
   const { signIn, signOut, isAuthenticated } = useContext(AppContext);
+  const router = useRouter();
   const [menuActive, setMenuActive] = useState(false);
   const [opaqueNavbar, setOpaqueNavbar] = useState(false);
+  const supportsTransparentNavbar = router.pathname === '/' || router.pathname === '/recipe/[recipe]';
+  const showOpaqueNavbar = !supportsTransparentNavbar || opaqueNavbar || menuActive;
 
   const handleClick = () => {
     setMenuActive(!menuActive);
@@ -49,7 +53,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed w-full flex items-center flex-wrap ${opaqueNavbar ? 'bg-black' : ''} 
+    <nav className={`fixed w-full flex items-center flex-wrap ${showOpaqueNavbar ? 'bg-black' : ''} 
       ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8 z-50`}
     >
       <Link href="/" className="inline-flex items-center p-2 mr-4 ">

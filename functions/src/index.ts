@@ -18,6 +18,7 @@ export interface Proportion {
 export interface Recipe {
   readonly content?: string
   readonly created: Timestamp
+  readonly durationMinutes?: number
   readonly lastCooked: Timestamp
   readonly name: string
   readonly proportions?: Proportion[]

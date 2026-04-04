@@ -10,7 +10,6 @@ interface RecipeToolbarProps {
 export default function RecipeToolbar(props: RecipeToolbarProps) {
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-4 lg:flex-row lg:items-center">
-      <ListCardToggleProps listViewActive={props.listViewActive} setListViewActive={props.setListViewActive} />
       <SearchTool searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery} />
     </div>
   );
@@ -45,33 +44,5 @@ export function SearchTool({ searchQuery, setSearchQuery }: SearchToolProps) {
         className="min-w-0 flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
       />
     </label>
-  );
-}
-
-interface ListCardToggleProps {
-  listViewActive: boolean;
-  setListViewActive: Dispatch<SetStateAction<boolean>>;
-}
-
-export function ListCardToggleProps(props: ListCardToggleProps) {
-  const buttonCSS = 'w-24 rounded-xl px-4 py-3 font-medium transition-colors duration-200';
-
-  return (
-    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-gray-300 bg-white p-1 shadow-sm">
-      <button
-        type="button"
-        className={`${buttonCSS} ${props.listViewActive ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20`}
-        onClick={() => props.setListViewActive(true)}
-      >
-        List
-      </button>
-      <button
-        type="button"
-        className={`${buttonCSS} ${!props.listViewActive ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100'} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20`}
-        onClick={() => props.setListViewActive(false)}
-      >
-        Card
-      </button>
-    </div>
   );
 }

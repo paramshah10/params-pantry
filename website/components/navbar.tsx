@@ -1,6 +1,5 @@
 import Hamburger from 'hamburger-react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../pages/_app';
 
@@ -11,27 +10,28 @@ interface Page {
 
 const Navbar = () => {
   const { signIn, signOut, isAuthenticated } = useContext(AppContext);
-  const router = useRouter();
   const [menuActive, setMenuActive] = useState(false);
-  const [opaqueNavbar, setOpaqueNavbar] = useState(false);
-  const supportsTransparentNavbar = router.pathname === '/' || router.pathname === '/recipe/[recipe]';
-  const showOpaqueNavbar = !supportsTransparentNavbar || opaqueNavbar || menuActive;
+  const [navbarOpacity, setNavbarOpacity] = useState(0);
 
   const handleClick = () => {
-    setMenuActive(!menuActive);
-    setOpaqueNavbar(!menuActive || window.scrollY >= 100);
+    setMenuActive(currentMenuActive => !currentMenuActive);
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 100)
-        setOpaqueNavbar(true);
-      else
-        setOpaqueNavbar(menuActive || false);
+      const nextOpacity = Math.min(window.scrollY / 140, 1);
+      setNavbarOpacity(nextOpacity);
     };
+
     window.addEventListener('scroll', handleScroll);
     handleScroll();
-  }, [menuActive]);
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navBackgroundStyle = menuActive
+    ? { backgroundColor: 'rgb(0 0 0)' }
+    : { backgroundColor: `rgba(0, 0, 0, ${navbarOpacity})` };
 
   const pages: Page[] = [
     {
@@ -53,8 +53,9 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed w-full flex items-center flex-wrap ${showOpaqueNavbar ? 'bg-black' : ''} 
-      ${menuActive ? '' : 'transition-colors delay-100'} py-3 px-8 z-50`}
+    <nav
+      className="fixed w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
+      style={navBackgroundStyle}
     >
       <Link href="/" className="inline-flex items-center p-2 mr-4 ">
         <img className="fill-current text-white h-8 w-8 mr-6" src="/apple-touch-icon.png" alt="Param's Pantry Logo" />

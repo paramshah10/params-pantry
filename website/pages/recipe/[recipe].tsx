@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState, useContext } from 'react';
 import EditPictureButton from '../../components/edit-button';
+import IngredientEditor from '../../components/ingredient-editor';
 import TextEditor from '../../components/text-editor';
 import DeleteButton from '../../components/delete-button';
-import { fetchImageURL, Recipe } from '../../utils/recipes';
+import { fetchImageURL, Proportion, Recipe } from '../../utils/recipes';
 import { AppContext } from '../_app';
 
 interface RecipePageProps {
@@ -72,6 +73,45 @@ export default function RecipePage(props: RecipePageProps) {
     return true;
   };
 
+  const handleIngredientSave = async ({
+    ingredients,
+    servings,
+  }: {
+    ingredients: Proportion[];
+    servings?: number;
+  }): Promise<boolean> => {
+    if (!firebase || !recipeName || typeof recipeName !== 'string') {
+      setErrorMessage('Recipe ingredients could not be saved. Please refresh and try again.');
+      return false;
+    }
+
+    const saveSucceeded = await firebase.put({
+      path: `recipes/${recipeName}`,
+      data: {
+        proportions: ingredients,
+        servings,
+      },
+    });
+
+    if (!saveSucceeded) {
+      setErrorMessage('Failed to save ingredients. Please try again.');
+      return false;
+    }
+
+    setRecipeData(currentRecipeData => {
+      if (!currentRecipeData) return currentRecipeData;
+
+      return {
+        ...currentRecipeData,
+        proportions: ingredients,
+        servings,
+      };
+    });
+    setSuccessMessage('Ingredients saved successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+    return true;
+  };
+
   const handleDeleteSuccess = () => {
     // Display success message before redirect
     setSuccessMessage('Recipe deleted successfully!');
@@ -121,87 +161,81 @@ export default function RecipePage(props: RecipePageProps) {
       </div>
       {/* Responsive content container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto max-w-7xl">
           {isRecipeLoading && (
             <div className="mb-8 rounded-3xl border border-gray-200 bg-white px-6 py-8 text-center text-gray-600 shadow-sm">
               Loading recipe…
             </div>
           )}
-          {(recipeData?.durationMinutes || recipeData?.tags?.length || recipeData?.proportions?.length) && (
-            <div className="mb-8 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-              <div className="grid gap-0 md:grid-cols-[0.65fr_minmax(0,1fr)]">
-                <section className="border-b border-gray-200 px-6 py-6 md:border-b-0 md:border-r">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-                    Snapshot
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {recipeData?.durationMinutes && (
-                      <div className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white">
-                        {recipeData.durationMinutes}
-                        {' '}
-                        min
-                      </div>
-                    )}
-                    {recipeData?.tags?.map(tag => (
-                      <div key={tag} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700">
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-                {recipeData?.proportions?.length
-                  ? (
-                      <section className="px-6 py-6">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-                          Ingredients
-                        </p>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          {recipeData.proportions.map((proportion, index) => (
-                            <li key={`${proportion.ingredient}-${index}`} className="flex gap-2">
-                              <span className="font-semibold text-gray-900">
-                                {[proportion.quantity, proportion.unit].filter(Boolean).join(' ')}
-                              </span>
-                              <span>{proportion.ingredient}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    )
-                  : (
-                      <section className="px-6 py-6">
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
-                          Ingredients
-                        </p>
-                        <p className="text-sm text-gray-500">No structured ingredients yet.</p>
-                      </section>
-                    )}
-              </div>
-            </div>
-          )}
           {recipeData && (
-            <div className="
-              bg-white rounded-lg shadow-lg overflow-hidden
-              min-h-[60vh]
-              border border-gray-200
-            "
-            >
-              <TextEditor
-                editorContent={recipeData.content || ''}
-                isAuthenticated={isAuthenticated}
-                recipeName={String(recipeName)}
-                onContentSave={content => {
-                  // Content change callback - will be used in future tasks for auto-save
-                  console.log('Content changed:', content);
-                }}
-                onSaveSuccess={() => {
-                  setSuccessMessage('Recipe content saved successfully!');
-                  setTimeout(() => setSuccessMessage(''), 3000);
-                }}
-                onSaveError={error => {
-                  setErrorMessage(`Failed to save content: ${error}`);
-                  setTimeout(() => setErrorMessage(''), 5000);
-                }}
-              />
+            <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
+              <aside className="lg:sticky lg:top-28">
+                <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                  <section className="border-b border-gray-200 px-6 py-6">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
+                      Snapshot
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {recipeData?.durationMinutes && (
+                        <div className="rounded-full bg-black px-4 py-2 text-sm font-semibold text-white">
+                          {recipeData.durationMinutes}
+                          {' '}
+                          min
+                        </div>
+                      )}
+                      {recipeData?.servings && (
+                        <div className="rounded-full border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900">
+                          Serves
+                          {' '}
+                          {recipeData.servings}
+                        </div>
+                      )}
+                      {recipeData?.tags?.map(tag => (
+                        <div key={tag} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700">
+                          {tag}
+                        </div>
+                      ))}
+                    </div>
+                    {!recipeData?.durationMinutes && !recipeData?.servings && !recipeData?.tags?.length && (
+                      <p className="text-sm text-gray-500">
+                        Add timing, servings, or tags when you want more structure around the recipe.
+                      </p>
+                    )}
+                  </section>
+                  <IngredientEditor
+                    ingredients={recipeData.proportions}
+                    isAuthenticated={isAuthenticated}
+                    onSave={handleIngredientSave}
+                    servings={recipeData.servings}
+                  />
+                </div>
+              </aside>
+
+              <div
+                className="
+                  min-w-0 bg-white rounded-lg shadow-lg overflow-hidden
+                  min-h-[60vh]
+                  border border-gray-200
+                "
+              >
+                <TextEditor
+                  editorContent={recipeData.content || ''}
+                  isAuthenticated={isAuthenticated}
+                  recipeName={String(recipeName)}
+                  onContentSave={content => {
+                    // Content change callback - will be used in future tasks for auto-save
+                    console.log('Content changed:', content);
+                  }}
+                  onSaveSuccess={() => {
+                    setSuccessMessage('Recipe content saved successfully!');
+                    setTimeout(() => setSuccessMessage(''), 3000);
+                  }}
+                  onSaveError={error => {
+                    setErrorMessage(`Failed to save content: ${error}`);
+                    setTimeout(() => setErrorMessage(''), 5000);
+                  }}
+                />
+              </div>
             </div>
           )}
         </div>

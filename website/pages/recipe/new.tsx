@@ -11,6 +11,7 @@ interface RecipeDraft {
   durationMinutes: string;
   ingredients: string;
   name: string;
+  servings: string;
   tags: string;
 }
 
@@ -55,6 +56,7 @@ export default function NewRecipePage(): JSX.Element {
     durationMinutes: '',
     ingredients: '',
     name: '',
+    servings: '',
     tags: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
@@ -113,6 +115,13 @@ export default function NewRecipePage(): JSX.Element {
         return;
       }
 
+      const parsedServings = draft.servings.trim() ? Number(draft.servings) : undefined;
+      if (parsedServings !== undefined && (!Number.isFinite(parsedServings) || parsedServings <= 0)) {
+        setErrorMessage('Servings must be a positive number.');
+        setIsCreating(false);
+        return;
+      }
+
       const existingRecipe = await firebase.get(`recipes/${recipeId}`);
       if (existingRecipe) {
         setErrorMessage('A recipe with that name already exists.');
@@ -132,6 +141,7 @@ export default function NewRecipePage(): JSX.Element {
           lastCooked: timestamp,
           name: trimmedRecipeName,
           proportions: parsedIngredients,
+          servings: parsedServings,
           tags: parsedTags,
         },
       });
@@ -256,7 +266,7 @@ export default function NewRecipePage(): JSX.Element {
               The URL slug will be generated automatically from the recipe name.
             </p>
 
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
               <div>
                 <label htmlFor="recipe-duration" className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700">
                   Duration (Minutes)
@@ -270,6 +280,22 @@ export default function NewRecipePage(): JSX.Element {
                   value={draft.durationMinutes}
                   onChange={event => setDraft(prev => ({ ...prev, durationMinutes: event.target.value }))}
                   placeholder="45…"
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
+                />
+              </div>
+              <div>
+                <label htmlFor="recipe-servings" className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700">
+                  Servings
+                </label>
+                <input
+                  id="recipe-servings"
+                  name="recipe-servings"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  value={draft.servings}
+                  onChange={event => setDraft(prev => ({ ...prev, servings: event.target.value }))}
+                  placeholder="4…"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
                 />
               </div>

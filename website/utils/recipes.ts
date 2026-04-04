@@ -16,6 +16,7 @@ export interface Recipe {
   lastCooked: Timestamp;
   name: string;
   proportions?: Proportion[];
+  servings?: number;
   tags: string[];
   image?: string;
   imageUrl?: string;

@@ -756,35 +756,6 @@ const TextEditor = ({
           className={`relative ${!isAuthenticated ? 'bg-gray-50 rounded-lg border border-gray-200' : ''}`}
           data-testid="editor-content-wrapper"
         >
-          {/* Read-only overlay indicator */}
-          {!isAuthenticated && (
-            <div className="absolute top-2 right-2 z-10">
-              <div className="flex items-center bg-white border border-gray-300 rounded-full px-2 py-1 shadow-sm">
-                <svg
-                  className="w-3 h-3 text-gray-500 mr-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                <span className="text-xs text-gray-600 font-medium">View only</span>
-              </div>
-            </div>
-          )}
-
           <EditorContent editor={editor} />
         </div>
 
@@ -905,37 +876,6 @@ const TextEditor = ({
                 {editorState.isSaving ? 'Saving...' : 'Save Now'}
               </button>
             )}
-          </div>
-        )}
-
-        {/* Read-only indicator for non-authenticated users */}
-        {!isAuthenticated && (
-          <div className="mt-4 px-5">
-            <div
-              className="flex items-center justify-center bg-gray-100 border border-gray-300 rounded-lg p-3"
-              role="status"
-              aria-label="This content is in read-only mode"
-            >
-              <div className="flex items-center space-x-2 text-gray-600">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-                <span className="text-sm font-medium">
-                  Read-only mode - Sign in to edit this recipe
-                </span>
-              </div>
-            </div>
           </div>
         )}
       </div>

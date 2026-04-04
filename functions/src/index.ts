@@ -22,6 +22,7 @@ export interface Recipe {
   readonly lastCooked: Timestamp
   readonly name: string
   readonly proportions?: Proportion[]
+  readonly servings?: number
   readonly tags: string[]
 }
 

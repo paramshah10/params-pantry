@@ -7,6 +7,7 @@ interface EditorToolbarProps {
   onSave: () => void;
   isSaving: boolean;
   hasUnsavedChanges: boolean;
+  showSaveControls?: boolean;
 }
 
 interface FormatButtonProps {
@@ -186,7 +187,13 @@ const SaveButton = ({ onSave, isSaving, hasUnsavedChanges }: {
 };
 
 // Main EditorToolbar component
-const EditorToolbar = ({ editor, onSave, isSaving, hasUnsavedChanges }: EditorToolbarProps) => {
+const EditorToolbar = ({
+  editor,
+  onSave,
+  isSaving,
+  hasUnsavedChanges,
+  showSaveControls = true,
+}: EditorToolbarProps) => {
   if (!editor) return null;
 
   return (
@@ -276,14 +283,15 @@ const EditorToolbar = ({ editor, onSave, isSaving, hasUnsavedChanges }: EditorTo
           </div>
         </div>
 
-        {/* Save button - responsive positioning */}
-        <div className="flex justify-end sm:justify-start" role="group" aria-label="Save actions">
-          <SaveButton
-            onSave={onSave}
-            isSaving={isSaving}
-            hasUnsavedChanges={hasUnsavedChanges}
-          />
-        </div>
+        {showSaveControls && (
+          <div className="flex justify-end sm:justify-start" role="group" aria-label="Save actions">
+            <SaveButton
+              onSave={onSave}
+              isSaving={isSaving}
+              hasUnsavedChanges={hasUnsavedChanges}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

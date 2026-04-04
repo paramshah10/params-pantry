@@ -14,6 +14,7 @@ interface TextEditorProps {
   onContentSave?: (content: string) => void;
   onSaveSuccess?: () => void;
   onSaveError?: (error: string) => void;
+  saveMode?: 'firebase' | 'local';
 }
 
 interface TextEditorState {
@@ -43,7 +44,8 @@ const TextEditor = ({
   recipeName,
   onContentSave,
   onSaveSuccess,
-  onSaveError
+  onSaveError,
+  saveMode = 'firebase',
 }: TextEditorProps) => {
   // Get Firebase instance from context and router
   const { firebase } = useContext(AppContext);
@@ -61,6 +63,7 @@ const TextEditor = ({
   });
 
   const [initialContent, setInitialContent] = useState<string>('');
+  const isLocalDraftMode = saveMode === 'local';
 
   // Refs for debounced auto-save and authentication tracking
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,6 +74,28 @@ const TextEditor = ({
 
   // Save method with enhanced error handling and retry logic
   const saveContent = useCallback(async (content: string, isRetry: boolean = false): Promise<boolean> => {
+    if (isLocalDraftMode) {
+      lastSavedContentRef.current = content;
+      setInitialContent(content);
+      setEditorState(prev => ({
+        ...prev,
+        hasUnsavedChanges: false,
+        isSaving: false,
+        error: null,
+        retryCount: isRetry ? prev.retryCount + 1 : prev.retryCount,
+      }));
+
+      if (onContentSave) {
+        onContentSave(content);
+      }
+
+      if (onSaveSuccess) {
+        onSaveSuccess();
+      }
+
+      return true;
+    }
+
     // Enhanced validation checks
     if (!firebase) {
       const errorMessage = 'Database connection not available. Please refresh the page and try again.';
@@ -214,7 +239,7 @@ const TextEditor = ({
 
       return false;
     }
-  }, [firebase, recipeName, isAuthenticated, onSaveSuccess, onSaveError, editorState.retryCount]);
+  }, [firebase, recipeName, isAuthenticated, isLocalDraftMode, onContentSave, onSaveSuccess, onSaveError, editorState.retryCount]);
 
   // Debounced auto-save to prevent excessive API calls
   const debouncedAutoSave = useCallback((content: string) => {
@@ -291,13 +316,17 @@ const TextEditor = ({
         hasUnsavedChanges: hasChanges,
       }));
 
+      if (isLocalDraftMode && onContentSave) {
+        onContentSave(currentContent);
+      }
+
       // Call the optional callback for content changes
-      if (onContentSave && hasChanges) {
+      if (!isLocalDraftMode && onContentSave && hasChanges) {
         onContentSave(currentContent);
       }
 
       // Trigger debounced auto-save for authenticated users
-      if (isAuthenticated && hasChanges) {
+      if (!isLocalDraftMode && isAuthenticated && hasChanges) {
         debouncedAutoSave(currentContent);
       }
     },
@@ -306,6 +335,10 @@ const TextEditor = ({
   // Enhanced content loading with better preservation and error recovery
   useEffect(() => {
     if (editor && !editorState.isInitializing) {
+      if (isLocalDraftMode && hasLoadedInitialContentRef.current) {
+        return;
+      }
+
       // Only reload content if the editorContent actually changed, not just authentication state
       const currentContent = editor.getHTML();
       const hasCurrentContent = currentContent && currentContent !== '<p></p>' && currentContent.trim() !== '';
@@ -418,7 +451,7 @@ const TextEditor = ({
         isHydratingContentRef.current = false;
       }
     }
-  }, [editor, editorContent, editorState.isInitializing, isAuthenticated]);
+  }, [editor, editorContent, editorState.isInitializing, isAuthenticated, isLocalDraftMode]);
 
   // Handle editor initialization
   useEffect(() => {
@@ -466,6 +499,10 @@ const TextEditor = ({
 
   // Navigation warning when users try to navigate away with unsaved changes
   useEffect(() => {
+    if (isLocalDraftMode) {
+      return;
+    }
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (editorState.hasUnsavedChanges && isAuthenticated) {
         e.preventDefault();
@@ -498,7 +535,7 @@ const TextEditor = ({
       window.removeEventListener('beforeunload', handleBeforeUnload);
       router.events.off('routeChangeStart', handleRouteChange);
     };
-  }, [editorState.hasUnsavedChanges, isAuthenticated, router.events]);
+  }, [editorState.hasUnsavedChanges, isAuthenticated, isLocalDraftMode, router.events]);
 
   // Handle discard changes functionality
   const handleDiscardChanges = useCallback(() => {
@@ -748,6 +785,7 @@ const TextEditor = ({
             onSave={handleManualSave}
             isSaving={editorState.isSaving}
             hasUnsavedChanges={editorState.hasUnsavedChanges}
+            showSaveControls={!isLocalDraftMode}
           />
         )}
 
@@ -760,7 +798,7 @@ const TextEditor = ({
         </div>
 
         {/* Enhanced unsaved changes warning banner */}
-        {isAuthenticated && editorState.hasUnsavedChanges && !editorState.isSaving && (
+        {isAuthenticated && !isLocalDraftMode && editorState.hasUnsavedChanges && !editorState.isSaving && (
           <div
             className="bg-orange-50 border-l-4 border-orange-400 p-4 mb-4 mx-5"
             role="alert"
@@ -811,7 +849,7 @@ const TextEditor = ({
         )}
 
         {/* Save status indicators for authenticated users */}
-        {isAuthenticated && (
+        {isAuthenticated && !isLocalDraftMode && (
           <div className="flex items-center justify-between mt-2 px-5">
             <div className="flex items-center space-x-4">
               {/* Saving indicator */}

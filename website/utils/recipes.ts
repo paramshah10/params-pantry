@@ -31,6 +31,30 @@ export interface Recipe {
   imageUrl?: string;
 }
 
+export const DEFAULT_RECIPE_TAGS = [
+  'Entrée',
+  'Breakfast',
+  'Lunch',
+  'Dinner',
+  'Vegetarian',
+  'Vegan',
+  'Dessert',
+  'Snack',
+  'Side',
+  'Soup',
+  'Weeknight',
+];
+
+export function normalizeTagList(tags: string[]): string[] {
+  return Array.from(
+    new Set(
+      tags
+        .map(tag => tag.trim())
+        .filter(Boolean),
+    ),
+  ).sort((leftTag, rightTag) => leftTag.localeCompare(rightTag));
+}
+
 export const kebabCase = (str: string) => str
   .replace(/([a-z])([A-Z])/g, '$1-$2')
   .replace(/[\s_]+/g, '-')

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FormEvent, JSX, MouseEvent, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../_app';
-import { Proportion, RecipeMacros } from '../../utils/recipes';
+import { DEFAULT_RECIPE_TAGS, normalizeTagList, Proportion, RecipeMacros } from '../../utils/recipes';
 import { kebabCase } from '../../utils/recipes';
 
 interface RecipeDraft {
@@ -16,8 +16,8 @@ interface RecipeDraft {
   ingredients: string;
   name: string;
   protein: string;
+  selectedTags: string[];
   servings: string;
-  tags: string;
 }
 
 function parseMacros(draft: RecipeDraft): RecipeMacros {
@@ -30,17 +30,6 @@ function parseMacros(draft: RecipeDraft): RecipeMacros {
     fiber: parseMacroField(draft.fiber),
     protein: parseMacroField(draft.protein),
   };
-}
-
-function parseTags(tags: string): string[] {
-  return Array.from(
-    new Set(
-      tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(Boolean),
-    ),
-  );
 }
 
 function parseIngredientLines(ingredients: string): Proportion[] {
@@ -78,12 +67,33 @@ export default function NewRecipePage(): JSX.Element {
     ingredients: '',
     name: '',
     protein: '',
+    selectedTags: [],
     servings: '',
-    tags: '',
   });
+  const [availableTags, setAvailableTags] = useState<string[]>(DEFAULT_RECIPE_TAGS);
   const [errorMessage, setErrorMessage] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const hasDraftContent = Object.values(draft).some(value => value.trim().length > 0);
+  const [newTag, setNewTag] = useState('');
+  const hasDraftContent = Object.entries(draft).some(([key, value]) => {
+    if (key === 'selectedTags') {
+      return (value as string[]).length > 0;
+    }
+
+    return typeof value === 'string' && value.trim().length > 0;
+  });
+
+  useEffect(() => {
+    if (!firebase) {
+      return;
+    }
+
+    const fetchTagOptions = async () => {
+      const tagOptionsDoc = await firebase.get('/website/recipe-tags');
+      setAvailableTags(normalizeTagList(tagOptionsDoc?.tags ?? DEFAULT_RECIPE_TAGS));
+    };
+
+    void fetchTagOptions();
+  }, [firebase]);
 
   const confirmDiscardDraft = (): boolean => {
     if (!hasDraftContent || allowNavigationRef.current) {
@@ -104,6 +114,20 @@ export default function NewRecipePage(): JSX.Element {
 
     allowNavigationRef.current = true;
     await router.push(href);
+  };
+
+  const handleAddTag = () => {
+    const trimmedTag = newTag.trim();
+    if (!trimmedTag) {
+      return;
+    }
+
+    setAvailableTags(currentAvailableTags => normalizeTagList([...currentAvailableTags, trimmedTag]));
+    setDraft(prev => ({
+      ...prev,
+      selectedTags: normalizeTagList([...prev.selectedTags, trimmedTag]),
+    }));
+    setNewTag('');
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -160,7 +184,16 @@ export default function NewRecipePage(): JSX.Element {
           return;
         }
       }
-      const parsedTags = parseTags(draft.tags);
+      const parsedTags = normalizeTagList(draft.selectedTags);
+      const savedTagOptions = await firebase.put({
+        path: '/website/recipe-tags',
+        data: {
+          tags: normalizeTagList([...availableTags, ...parsedTags]),
+        },
+      });
+      if (!savedTagOptions) {
+        throw new Error('Recipe tags could not be saved. Please try again.');
+      }
       const timestamp = Timestamp.now();
       const created = await firebase.put({
         path: `recipes/${recipeId}`,
@@ -331,24 +364,62 @@ export default function NewRecipePage(): JSX.Element {
                 />
               </div>
               <div>
-                <label htmlFor="recipe-tags" className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700">
+                <label className="mb-3 block text-sm font-semibold uppercase tracking-wide text-gray-700">
                   Tags
                 </label>
-                <input
-                  id="recipe-tags"
-                  name="recipe-tags"
-                  type="text"
-                  value={draft.tags}
-                  onChange={event => setDraft(prev => ({ ...prev, tags: event.target.value }))}
-                  placeholder="Entrée, Vegetarian, Weeknight…"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-lg text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
-                  autoComplete="off"
-                />
+                <div className="space-y-3 rounded-2xl border border-gray-200 bg-gray-50/80 p-4">
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      name="new-recipe-tag"
+                      value={newTag}
+                      onChange={event => setNewTag(event.target.value)}
+                      placeholder="Add a new tag…"
+                      autoComplete="off"
+                      className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors duration-200 focus:border-black focus-visible:ring-2 focus-visible:ring-black/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddTag}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-700 transition-colors duration-200 hover:border-gray-400 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+                      aria-label="Add tag"
+                    >
+                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fillRule="evenodd" d="M10 4a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V5a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availableTags.map(tag => {
+                      const isSelected = draft.selectedTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setDraft(prev => ({
+                            ...prev,
+                            selectedTags: isSelected
+                              ? prev.selectedTags.filter(selectedTag => selectedTag !== tag)
+                              : normalizeTagList([...prev.selectedTags, tag]),
+                          }))}
+                          aria-pressed={isSelected}
+                          className={`rounded-full border px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+                            isSelected
+                              ? 'border-black bg-black text-white'
+                              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-100'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
             <p className="mt-4 text-sm text-gray-500">
-              Separate tags with commas. Add
+              Pick from your saved tag list. Add
               {' '}
               <span className="font-semibold text-gray-700">Entrée</span>
               {' '}

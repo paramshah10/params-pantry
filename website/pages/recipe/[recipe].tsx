@@ -3,9 +3,10 @@ import { useEffect, useState, useContext } from 'react';
 import EditPictureButton from '../../components/edit-button';
 import IngredientEditor from '../../components/ingredient-editor';
 import MacroEditor from '../../components/macro-editor';
+import TagEditor from '../../components/tag-editor';
 import TextEditor from '../../components/text-editor';
 import DeleteButton from '../../components/delete-button';
-import { fetchImageURL, Proportion, Recipe, RecipeMacros } from '../../utils/recipes';
+import { DEFAULT_RECIPE_TAGS, fetchImageURL, normalizeTagList, Proportion, Recipe, RecipeMacros } from '../../utils/recipes';
 import { AppContext } from '../_app';
 
 interface RecipePageProps {
@@ -18,6 +19,7 @@ export default function RecipePage(props: RecipePageProps) {
   const { recipe: recipeName } = router.query;
 
   const [recipeData, setRecipeData] = useState<Recipe | undefined>(undefined);
+  const [availableTags, setAvailableTags] = useState<string[]>(DEFAULT_RECIPE_TAGS);
   const [isRecipeLoading, setIsRecipeLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -28,12 +30,20 @@ export default function RecipePage(props: RecipePageProps) {
 
     setIsRecipeLoading(true);
     try {
-      const data = await firebase.get(`/recipes/${name}`);
+      const [data, tagOptionsDoc] = await Promise.all([
+        firebase.get(`/recipes/${name}`),
+        firebase.get('/website/recipe-tags'),
+      ]);
       if (!data) {
         setRecipeData(undefined);
         setErrorMessage('Recipe not found.');
         return;
       }
+
+      setAvailableTags(normalizeTagList([
+        ...(tagOptionsDoc?.tags ?? DEFAULT_RECIPE_TAGS),
+        ...(data.tags ?? []),
+      ]));
 
       await updateImageState(data);
     } finally {
@@ -109,6 +119,52 @@ export default function RecipePage(props: RecipePageProps) {
       };
     });
     setSuccessMessage('Ingredients saved successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+    return true;
+  };
+
+  const handleTagSave = async ({
+    availableTags: nextAvailableTags,
+    selectedTags,
+  }: {
+    availableTags: string[];
+    selectedTags: string[];
+  }): Promise<boolean> => {
+    if (!firebase || !recipeName || typeof recipeName !== 'string') {
+      setErrorMessage('Recipe tags could not be saved. Please refresh and try again.');
+      return false;
+    }
+
+    const [savedRecipeTags, savedTagOptions] = await Promise.all([
+      firebase.put({
+        path: `recipes/${recipeName}`,
+        data: {
+          tags: selectedTags,
+        },
+      }),
+      firebase.put({
+        path: '/website/recipe-tags',
+        data: {
+          tags: nextAvailableTags,
+        },
+      }),
+    ]);
+
+    if (!savedRecipeTags || !savedTagOptions) {
+      setErrorMessage('Failed to save tags. Please try again.');
+      return false;
+    }
+
+    setAvailableTags(nextAvailableTags);
+    setRecipeData(currentRecipeData => {
+      if (!currentRecipeData) return currentRecipeData;
+
+      return {
+        ...currentRecipeData,
+        tags: selectedTags,
+      };
+    });
+    setSuccessMessage('Tags saved successfully!');
     setTimeout(() => setSuccessMessage(''), 3000);
     return true;
   };
@@ -222,11 +278,6 @@ export default function RecipePage(props: RecipePageProps) {
                           {recipeData.servings}
                         </div>
                       )}
-                      {recipeData?.tags?.map(tag => (
-                        <div key={tag} className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700">
-                          {tag}
-                        </div>
-                      ))}
                     </div>
                     {!recipeData?.durationMinutes && !recipeData?.servings && !recipeData?.tags?.length && (
                       <p className="text-sm text-gray-500">
@@ -234,6 +285,12 @@ export default function RecipePage(props: RecipePageProps) {
                       </p>
                     )}
                   </section>
+                  <TagEditor
+                    availableTags={availableTags}
+                    isAuthenticated={isAuthenticated}
+                    onSave={handleTagSave}
+                    selectedTags={recipeData.tags}
+                  />
                   <IngredientEditor
                     ingredients={recipeData.proportions}
                     isAuthenticated={isAuthenticated}

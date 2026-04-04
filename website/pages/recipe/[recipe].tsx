@@ -2,9 +2,10 @@ import { useRouter } from 'next/router';
 import { useEffect, useState, useContext } from 'react';
 import EditPictureButton from '../../components/edit-button';
 import IngredientEditor from '../../components/ingredient-editor';
+import MacroEditor from '../../components/macro-editor';
 import TextEditor from '../../components/text-editor';
 import DeleteButton from '../../components/delete-button';
-import { fetchImageURL, Proportion, Recipe } from '../../utils/recipes';
+import { fetchImageURL, Proportion, Recipe, RecipeMacros } from '../../utils/recipes';
 import { AppContext } from '../_app';
 
 interface RecipePageProps {
@@ -108,6 +109,37 @@ export default function RecipePage(props: RecipePageProps) {
       };
     });
     setSuccessMessage('Ingredients saved successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+    return true;
+  };
+
+  const handleMacroSave = async (macros: RecipeMacros): Promise<boolean> => {
+    if (!firebase || !recipeName || typeof recipeName !== 'string') {
+      setErrorMessage('Recipe macros could not be saved. Please refresh and try again.');
+      return false;
+    }
+
+    const saveSucceeded = await firebase.put({
+      path: `recipes/${recipeName}`,
+      data: {
+        macros,
+      },
+    });
+
+    if (!saveSucceeded) {
+      setErrorMessage('Failed to save macros. Please try again.');
+      return false;
+    }
+
+    setRecipeData(currentRecipeData => {
+      if (!currentRecipeData) return currentRecipeData;
+
+      return {
+        ...currentRecipeData,
+        macros,
+      };
+    });
+    setSuccessMessage('Macros saved successfully!');
     setTimeout(() => setSuccessMessage(''), 3000);
     return true;
   };
@@ -218,6 +250,11 @@ export default function RecipePage(props: RecipePageProps) {
                   border border-gray-200
                 "
               >
+                <MacroEditor
+                  isAuthenticated={isAuthenticated}
+                  macros={recipeData.macros}
+                  onSave={handleMacroSave}
+                />
                 <TextEditor
                   editorContent={recipeData.content || ''}
                   isAuthenticated={isAuthenticated}

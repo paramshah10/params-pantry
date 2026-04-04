@@ -3,16 +3,33 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FormEvent, JSX, MouseEvent, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../_app';
-import { Proportion } from '../../utils/recipes';
+import { Proportion, RecipeMacros } from '../../utils/recipes';
 import { kebabCase } from '../../utils/recipes';
 
 interface RecipeDraft {
+  caloriesPerServing: string;
+  carbohydrates: string;
   content: string;
   durationMinutes: string;
+  fats: string;
+  fiber: string;
   ingredients: string;
   name: string;
+  protein: string;
   servings: string;
   tags: string;
+}
+
+function parseMacros(draft: RecipeDraft): RecipeMacros {
+  const parseMacroField = (value: string) => value.trim() === '' ? undefined : Number(value);
+
+  return {
+    caloriesPerServing: parseMacroField(draft.caloriesPerServing),
+    carbohydrates: parseMacroField(draft.carbohydrates),
+    fats: parseMacroField(draft.fats),
+    fiber: parseMacroField(draft.fiber),
+    protein: parseMacroField(draft.protein),
+  };
 }
 
 function parseTags(tags: string): string[] {
@@ -52,10 +69,15 @@ export default function NewRecipePage(): JSX.Element {
   const { firebase, isAuthenticated, signIn } = useContext(AppContext);
   const allowNavigationRef = useRef(false);
   const [draft, setDraft] = useState<RecipeDraft>({
+    caloriesPerServing: '',
+    carbohydrates: '',
     content: '',
     durationMinutes: '',
+    fats: '',
+    fiber: '',
     ingredients: '',
     name: '',
+    protein: '',
     servings: '',
     tags: '',
   });
@@ -130,6 +152,14 @@ export default function NewRecipePage(): JSX.Element {
       }
 
       const parsedIngredients = parseIngredientLines(draft.ingredients);
+      const parsedMacros = parseMacros(draft);
+      for (const [key, value] of Object.entries(parsedMacros)) {
+        if (value !== undefined && (!Number.isFinite(value) || value < 0)) {
+          setErrorMessage(`${key} must be zero or greater.`);
+          setIsCreating(false);
+          return;
+        }
+      }
       const parsedTags = parseTags(draft.tags);
       const timestamp = Timestamp.now();
       const created = await firebase.put({
@@ -139,6 +169,7 @@ export default function NewRecipePage(): JSX.Element {
           created: timestamp,
           durationMinutes: parsedDuration,
           lastCooked: timestamp,
+          macros: parsedMacros,
           name: trimmedRecipeName,
           proportions: parsedIngredients,
           servings: parsedServings,
@@ -323,6 +354,42 @@ export default function NewRecipePage(): JSX.Element {
               {' '}
               if you want the weekly selector to consider this recipe.
             </p>
+
+            <div className="mt-8">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                Macros Per Serving
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                {[
+                  ['caloriesPerServing', 'Calories', 'kcal'],
+                  ['protein', 'Protein', 'g'],
+                  ['carbohydrates', 'Carbs', 'g'],
+                  ['fats', 'Fat', 'g'],
+                  ['fiber', 'Fiber', 'g'],
+                ].map(([field, label, suffix]) => (
+                  <label key={field} className="block">
+                    <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      {label}
+                    </span>
+                    <div className="flex items-end gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        inputMode="decimal"
+                        value={draft[field as keyof RecipeDraft]}
+                        onChange={event => setDraft(prev => ({ ...prev, [field]: event.target.value }))}
+                        placeholder="0"
+                        className="min-w-0 flex-1 border-0 bg-transparent p-0 text-lg font-semibold text-gray-900 outline-none"
+                      />
+                      <span className="pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {suffix}
+                      </span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
           </section>
 
           <section className="bg-gray-50/70 px-8 py-8">

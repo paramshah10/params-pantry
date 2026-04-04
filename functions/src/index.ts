@@ -15,11 +15,20 @@ export interface Proportion {
   readonly unit: string;
 }
 
+export interface RecipeMacros {
+  readonly caloriesPerServing?: number
+  readonly carbohydrates?: number
+  readonly fats?: number
+  readonly fiber?: number
+  readonly protein?: number
+}
+
 export interface Recipe {
   readonly content?: string
   readonly created: Timestamp
   readonly durationMinutes?: number
   readonly lastCooked: Timestamp
+  readonly macros?: RecipeMacros
   readonly name: string
   readonly proportions?: Proportion[]
   readonly servings?: number

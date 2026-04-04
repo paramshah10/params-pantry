@@ -9,11 +9,20 @@ export interface Proportion {
   unit: string;
 }
 
+export interface RecipeMacros {
+  caloriesPerServing?: number;
+  carbohydrates?: number;
+  fats?: number;
+  fiber?: number;
+  protein?: number;
+}
+
 export interface Recipe {
   content?: string;
   created: Timestamp;
   durationMinutes?: number;
   lastCooked: Timestamp;
+  macros?: RecipeMacros;
   name: string;
   proportions?: Proportion[];
   servings?: number;

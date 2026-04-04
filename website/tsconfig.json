@@ -9,7 +9,7 @@
     ], /* https://www.typescriptlang.org/tsconfig/#lib */
     "target": "ES2022", /* Specify ECMAScript target version to match Node Runtime. */
     "module": "esnext", /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": true, /* Generates corresponding '.d.ts' file. */
     "inlineSourceMap": true, /* Does not generate another '.map' file, writes transpiled mappings within js file. */
     "inlineSources": true, /*  "" */

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 // Check out: https://github.com/import-js/eslint-plugin-import/issues/2266
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Recipe } from '../utils/recipes';
@@ -10,42 +9,16 @@ interface RecipeCarouselProps {
 }
 
 export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
-  const [numSlides, setNumSlides] = useState(3.2);
-  const recipeCount = recipes?.length ?? 0;
-
-  useEffect(() => {
-    const updateSlides = () => {
-      const windowSize = [window.innerWidth, window.innerHeight];
-      const remainder = windowSize[0] / 3000;
-      const remainder2 = windowSize[0] / 5000;
-
-      if (windowSize[0] < 620)
-        setNumSlides(1.1 + remainder);
-      else if (windowSize[0] < 1000)
-        setNumSlides(2.1 + remainder);
-      else if (windowSize[0] < 1300)
-        setNumSlides(3.2 + remainder);
-      else if (windowSize[0] < 1600)
-        setNumSlides(4.5 + remainder + remainder2);
-      else
-        setNumSlides(4.5 + remainder + 3 * remainder2);
-    };
-
-    window.addEventListener('resize', updateSlides);
-    updateSlides();
-    return () => window.removeEventListener('resize', updateSlides);
-  }, []);
-
   return (
-    <div className="w-full max-w-5xl mx-auto py-10 px-4 overflow-x-clip">
+    <div className="w-full max-w-5xl mx-auto py-10 px-8 overflow-visible">
       <Swiper
         centerInsufficientSlides
-        slidesPerView={Math.min(numSlides, recipeCount || numSlides)}
+        slidesPerView="auto"
         spaceBetween={32}
-        className="w-full h-96"
+        className="w-full h-96 !overflow-visible"
       >
         {recipes?.map(recipe => (
-          <SwiperSlide key={recipe.name}>
+          <SwiperSlide key={recipe.name} className="!w-56">
             <RecipeCard recipe={recipe} />
           </SwiperSlide>
         ),

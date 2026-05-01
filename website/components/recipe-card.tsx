@@ -15,7 +15,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           className="w-56 h-72 rounded-xl shadow-xl bg-no-repeat bg-center bg-cover cursor-pointer"
           style={{ backgroundImage: `url("${recipe.imageUrl}")` }}
         />
-        <p className="text-xl mt-4 font-medium font-black text-center">
+        <p className="w-56 text-xl mt-4 font-medium font-black text-center">
           {recipe.name}
         </p>
       </div>

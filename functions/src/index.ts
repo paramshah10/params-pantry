@@ -6,6 +6,7 @@ import { combineTags, kebabCase, proportionsToIngredientList } from './utils';
 admin.initializeApp();
 const db = getFirestore();
 const WEEKLY_RECIPE_COUNT = 4;
+const HIGH_PROTEIN_RECIPE_COUNT = 4;
 
 export interface Proportion {
   readonly ingredient: string;
@@ -160,5 +161,53 @@ export const weeklyRecipeUpdateV2 = onSchedule('0 0 * * MON', async () => {
   } catch (error) {
     console.error('Error in weekly recipe update:', error);
     throw error; // Re-throw to ensure Cloud Functions logs the error
+  }
+});
+
+/**
+ * High protein recipe update function to select the highest-protein recipes.
+ * Runs weekly after the standard recipe update and stores recipe ids for the website carousel.
+ */
+export const highProteinRecipeUpdateV1 = onSchedule('0 1 * * MON', async () => {
+  try {
+    console.log('Starting high protein recipe update...');
+
+    const recipeSnapshot = await db.collection('/recipes')
+      .where('macros.protein', '>', 0)
+      .orderBy('macros.protein', 'desc')
+      .limit(HIGH_PROTEIN_RECIPE_COUNT)
+      .get();
+
+    if (recipeSnapshot.empty) {
+      console.warn('No recipes with protein macros found');
+      return;
+    }
+
+    const recipes = recipeSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data() as Recipe,
+    }));
+    const pickedRecipes = recipes.map(recipe => recipe.name);
+
+    if (recipes.length < HIGH_PROTEIN_RECIPE_COUNT) {
+      console.warn(
+        `Only ${recipes.length} high protein recipes available, expected ${HIGH_PROTEIN_RECIPE_COUNT}`,
+      );
+    }
+
+    console.log(
+      'Selected high protein recipes:',
+      recipes.map(recipe => `${recipe.name} (${recipe.macros?.protein ?? 0}g protein)`),
+    );
+
+    await db.doc('/website/high-protein-recipes').set({
+      recipes: pickedRecipes.map(kebabCase),
+      lastUpdated: Timestamp.now(),
+    }, { merge: true });
+
+    console.log('High protein recipe update completed successfully');
+  } catch (error) {
+    console.error('Error in high protein recipe update:', error);
+    throw error;
   }
 });

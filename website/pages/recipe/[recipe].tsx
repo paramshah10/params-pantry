@@ -1,5 +1,7 @@
+import { deleteField } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useContext } from 'react';
+import DurationEditor from '../../components/duration-editor';
 import EditPictureButton from '../../components/edit-button';
 import IngredientEditor from '../../components/ingredient-editor';
 import MacroEditor from '../../components/macro-editor';
@@ -200,6 +202,37 @@ export default function RecipePage(props: RecipePageProps) {
     return true;
   };
 
+  const handleDurationSave = async (durationMinutes?: number): Promise<boolean> => {
+    if (!firebase || !recipeName || typeof recipeName !== 'string') {
+      setErrorMessage('Recipe cook time could not be saved. Please refresh and try again.');
+      return false;
+    }
+
+    const saveSucceeded = await firebase.put({
+      path: `recipes/${recipeName}`,
+      data: {
+        durationMinutes: durationMinutes ?? deleteField(),
+      },
+    });
+
+    if (!saveSucceeded) {
+      setErrorMessage('Failed to save cook time. Please try again.');
+      return false;
+    }
+
+    setRecipeData(currentRecipeData => {
+      if (!currentRecipeData) return currentRecipeData;
+
+      return {
+        ...currentRecipeData,
+        durationMinutes,
+      };
+    });
+    setSuccessMessage('Cook time saved successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
+    return true;
+  };
+
   const handleDeleteSuccess = () => {
     // Display success message before redirect
     setSuccessMessage('Recipe deleted successfully!');
@@ -290,6 +323,11 @@ export default function RecipePage(props: RecipePageProps) {
                   isAuthenticated={isAuthenticated}
                   onSave={handleTagSave}
                   selectedTags={recipeData.tags}
+                />
+                <DurationEditor
+                  durationMinutes={recipeData.durationMinutes}
+                  isAuthenticated={isAuthenticated}
+                  onSave={handleDurationSave}
                 />
                 <IngredientEditor
                   ingredients={recipeData.proportions}

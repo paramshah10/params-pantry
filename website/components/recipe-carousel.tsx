@@ -11,6 +11,7 @@ interface RecipeCarouselProps {
 
 export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
   const [numSlides, setNumSlides] = useState(3.2);
+  const recipeCount = recipes?.length ?? 0;
 
   useEffect(() => {
     const updateSlides = () => {
@@ -33,13 +34,15 @@ export default function RecipeCarousel({ recipes }: RecipeCarouselProps) {
     window.addEventListener('resize', updateSlides);
     updateSlides();
     return () => window.removeEventListener('resize', updateSlides);
-  });
+  }, []);
 
   return (
-    <div className="w-full py-10 px-4 m-4 overflow-x-clip">
+    <div className="w-full max-w-5xl mx-auto py-10 px-4 overflow-x-clip">
       <Swiper
-        slidesPerView={numSlides}
-        className="flex flex-col items-center w-full h-96"
+        centerInsufficientSlides
+        slidesPerView={Math.min(numSlides, recipeCount || numSlides)}
+        spaceBetween={32}
+        className="w-full h-96"
       >
         {recipes?.map(recipe => (
           <SwiperSlide key={recipe.name}>

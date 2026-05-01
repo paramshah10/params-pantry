@@ -10,3 +10,5 @@ node_modules/
 .omx/
 .codex/
 .agents/
+
+.stitch/

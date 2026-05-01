@@ -8,7 +8,7 @@ interface RecipeCardProps {
 export default function RecipeCard({ recipe }: RecipeCardProps) {
   return (
     <Link href={`/recipe/${kebabCase(recipe.name)}`}>
-      <div className="first:pl-6 last:pr-[calc(100%-21.5rem)] flex flex-col items-center hover:transition hover:scale-105 hover:ease-in-out hover:duration-300">
+      <div className="flex flex-col items-center transition-transform duration-300 ease-in-out hover:scale-105">
         {/* Background image instead of img to maintain aspect ratio of the picture */}
         {/* <img src={props.img} className="w-56 h-72 rounded-xl shadow-xl bg-white" alt="Recipe food" /> */}
         <div

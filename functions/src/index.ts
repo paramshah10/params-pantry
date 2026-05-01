@@ -165,7 +165,7 @@ export const weeklyRecipeUpdateV2 = onSchedule('0 0 * * MON', async () => {
 });
 
 /**
- * High protein recipe update function to select the highest-protein recipes.
+ * High protein recipe update function to select 4 varied recipes tagged as high protein.
  * Runs weekly after the standard recipe update and stores recipe ids for the website carousel.
  */
 export const highProteinRecipeUpdateV1 = onSchedule('0 1 * * MON', async () => {
@@ -173,13 +173,12 @@ export const highProteinRecipeUpdateV1 = onSchedule('0 1 * * MON', async () => {
     console.log('Starting high protein recipe update...');
 
     const recipeSnapshot = await db.collection('/recipes')
-      .where('macros.protein', '>', 0)
-      .orderBy('macros.protein', 'desc')
-      .limit(HIGH_PROTEIN_RECIPE_COUNT)
+      .where('tags', 'array-contains', 'High Protein')
+      .orderBy('lastCooked', 'asc')
       .get();
 
     if (recipeSnapshot.empty) {
-      console.warn('No recipes with protein macros found');
+      console.warn('No high protein recipes found');
       return;
     }
 
@@ -187,23 +186,84 @@ export const highProteinRecipeUpdateV1 = onSchedule('0 1 * * MON', async () => {
       id: doc.id,
       ...doc.data() as Recipe,
     }));
-    const pickedRecipes = recipes.map(recipe => recipe.name);
+
+    console.log(`Found ${recipes.length} high protein recipes`);
 
     if (recipes.length < HIGH_PROTEIN_RECIPE_COUNT) {
       console.warn(
-        `Only ${recipes.length} high protein recipes available, expected ${HIGH_PROTEIN_RECIPE_COUNT}`,
+        `Only ${recipes.length} high protein recipes available, need at least ${HIGH_PROTEIN_RECIPE_COUNT}`,
+      );
+      return;
+    }
+
+    const recipeMap: RecipeMap = new Map();
+    recipes.forEach(recipe => recipeMap.set(recipe.name, recipe));
+
+    const oldestDate = recipes[0].lastCooked;
+    const lruRecipes = recipes.filter(recipe => recipe.lastCooked.isEqual(oldestDate));
+    const randomIndex = Math.floor(Math.random() * lruRecipes.length);
+    const firstRecipe = lruRecipes[randomIndex];
+    const pickedRecipes = [firstRecipe.name];
+    const availableRecipes = recipes.filter(recipe => recipe.name !== firstRecipe.name);
+
+    console.log(`Starting high protein list with recipe: ${firstRecipe.name}`);
+
+    for (let index = 1; index < HIGH_PROTEIN_RECIPE_COUNT; index++) {
+      if (availableRecipes.length === 0) break;
+
+      const scores = availableRecipes.map((recipe, recipeIndex) => {
+        const currentIngredients = new Set(
+          pickedRecipes.flatMap(recipeName =>
+            proportionsToIngredientList(recipeMap.get(recipeName)?.proportions),
+          ),
+        );
+        const recipeIngredients = proportionsToIngredientList(recipe.proportions);
+        const ingredientOverlap = recipeIngredients.filter(ingredient => currentIngredients.has(ingredient)).length;
+        const ingredientScore = ingredientOverlap / Math.max(recipeIngredients.length, 1);
+
+        const daysSinceCooked = (Date.now() - recipe.lastCooked.toMillis()) / (1000 * 60 * 60 * 24);
+        const dateScore = Math.min(daysSinceCooked / 30, 1);
+
+        const currentTags = new Set(combineTags(pickedRecipes, recipeMap).filter(tag => tag !== 'High Protein'));
+        const recipeTags = recipe.tags.filter(tag => tag !== 'High Protein');
+        const tagOverlap = recipeTags.filter(tag => currentTags.has(tag)).length;
+        const tagScore = tagOverlap / Math.max(recipeTags.length, 1);
+
+        const totalScore = (ingredientScore * 0.5) + (tagScore * 0.3) - (dateScore * 0.2);
+
+        return { score: totalScore, index: recipeIndex, recipe: recipe.name };
+      });
+
+      scores.sort((a, b) => a.score - b.score);
+
+      const selectedRecipe = availableRecipes[scores[0].index];
+      pickedRecipes.push(selectedRecipe.name);
+      availableRecipes.splice(scores[0].index, 1);
+
+      console.log(
+        `High protein slot ${index + 1}: Selected ${selectedRecipe.name} (score: ${scores[0].score.toFixed(3)})`,
       );
     }
 
     console.log(
       'Selected high protein recipes:',
-      recipes.map(recipe => `${recipe.name} (${recipe.macros?.protein ?? 0}g protein)`),
+      pickedRecipes,
     );
 
-    await db.doc('/website/high-protein-recipes').set({
+    const timestamp = Timestamp.now();
+    const batch = db.batch();
+
+    batch.set(db.doc('/website/high-protein-recipes'), {
       recipes: pickedRecipes.map(kebabCase),
-      lastUpdated: Timestamp.now(),
+      lastUpdated: timestamp,
     }, { merge: true });
+
+    pickedRecipes.forEach(recipeName => {
+      const recipeRef = db.doc(`/recipes/${kebabCase(recipeName)}`);
+      batch.update(recipeRef, { lastCooked: timestamp });
+    });
+
+    await batch.commit();
 
     console.log('High protein recipe update completed successfully');
   } catch (error) {

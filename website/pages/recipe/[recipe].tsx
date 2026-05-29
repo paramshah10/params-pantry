@@ -1,4 +1,5 @@
 import { deleteField } from 'firebase/firestore';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState, useContext } from 'react';
 import DurationEditor from '../../components/duration-editor';
@@ -277,27 +278,13 @@ export default function RecipePage(props: RecipePageProps) {
             <h1 className="text-5xl font-black leading-[1.03] tracking-normal text-black sm:text-6xl lg:text-7xl xl:text-8xl">
               {recipeData?.name || 'Recipe'}
             </h1>
-            {(recipeDetails.length > 0 || recipeTags.length > 0) && (
+            {recipeDetails.length > 0 && (
               <div className="mt-8 flex flex-col items-center gap-5 lg:items-start">
-                {recipeDetails.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-[0.2em] text-gray-950 lg:justify-start">
-                    {recipeDetails.map(detail => (
-                      <span key={detail}>{detail}</span>
-                    ))}
-                  </div>
-                )}
-                {recipeTags.length > 0 && (
-                  <div className="flex max-w-md flex-wrap justify-center gap-2 lg:justify-start">
-                    {recipeTags.map(tag => (
-                      <span
-                        key={tag}
-                        className="border border-gray-300 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-700"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-[0.2em] text-gray-950 lg:justify-start">
+                  {recipeDetails.map(detail => (
+                    <span key={detail}>{detail}</span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -323,12 +310,6 @@ export default function RecipePage(props: RecipePageProps) {
           {recipeData && (
             <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
               <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-                <TagEditor
-                  availableTags={availableTags}
-                  isAuthenticated={isAuthenticated}
-                  onSave={handleTagSave}
-                  selectedTags={recipeData.tags}
-                />
                 <DurationEditor
                   durationMinutes={recipeData.durationMinutes}
                   isAuthenticated={isAuthenticated}
@@ -371,6 +352,37 @@ export default function RecipePage(props: RecipePageProps) {
                     setTimeout(() => setErrorMessage(''), 5000);
                   }}
                 />
+                {recipeTags.length > 0 && (
+                  <section className="border-t border-gray-200 px-6 py-8 sm:px-8">
+                    <div className="grid gap-5 md:grid-cols-[12rem_minmax(0,1fr)] md:items-start">
+                      <p className="text-base font-bold text-gray-500">
+                        Explore Param&apos;s Pantry
+                      </p>
+                      <div className="flex flex-wrap gap-3">
+                        {recipeTags.map(tag => (
+                          <Link
+                            key={tag}
+                            href={{
+                              pathname: '/recipes',
+                              query: { tag },
+                            }}
+                            className="rounded-full bg-amber-200 px-5 py-2 text-base font-semibold text-black transition-colors duration-200 hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+                          >
+                            {tag}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+                {isAuthenticated && (
+                  <TagEditor
+                    availableTags={availableTags}
+                    isAuthenticated={isAuthenticated}
+                    onSave={handleTagSave}
+                    selectedTags={recipeData.tags}
+                  />
+                )}
               </div>
             </div>
           )}

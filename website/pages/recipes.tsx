@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { JSX, useContext, useDeferredValue, useEffect, useState } from 'react';
+import { SetStateAction } from 'react';
 import RecipeToolbar from '../components/list-card-toggle';
 import RecipeCard from '../components/recipe-card';
 import { fetchImageURL, normalizeTagList, Recipe } from '../utils/recipes';
@@ -27,7 +29,22 @@ function toDisplayableRecipe(recipe: unknown): Recipe | null {
   };
 }
 
+function getTextQueryParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? '';
+
+  return value ?? '';
+}
+
+function getTagQueryParam(value: string | string[] | undefined): string[] {
+  if (!value) return [];
+
+  const tags = Array.isArray(value) ? value : value.split(',');
+
+  return normalizeTagList(tags);
+}
+
 export default function AllRecipesPage(): JSX.Element {
+  const router = useRouter();
   const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const { firebase, isAuthenticated } = useContext(AppContext);
@@ -36,6 +53,46 @@ export default function AllRecipesPage(): JSX.Element {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const deferredSelectedTags = useDeferredValue(selectedTags);
+
+  const updateFilterUrl = (nextSearchQuery: string, nextSelectedTags: string[]) => {
+    if (!router.isReady) return;
+
+    const nextQuery: Record<string, string> = {};
+    const trimmedSearchQuery = nextSearchQuery.trim();
+    if (trimmedSearchQuery) {
+      nextQuery.text = trimmedSearchQuery;
+    }
+    if (nextSelectedTags.length > 0) {
+      nextQuery.tag = nextSelectedTags.join(',');
+    }
+
+    void router.replace(
+      {
+        pathname: router.pathname,
+        query: nextQuery,
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
+  const setSearchQueryFilter = (nextValue: SetStateAction<string>) => {
+    const nextSearchQuery = typeof nextValue === 'function'
+      ? nextValue(searchQuery)
+      : nextValue;
+    setSearchQuery(nextSearchQuery);
+    updateFilterUrl(nextSearchQuery, selectedTags);
+  };
+
+  const setSelectedTagsFilter = (nextValue: SetStateAction<string[]>) => {
+    const nextSelectedTags = normalizeTagList(
+      typeof nextValue === 'function'
+        ? nextValue(selectedTags)
+        : nextValue,
+    );
+    setSelectedTags(nextSelectedTags);
+    updateFilterUrl(searchQuery, nextSelectedTags);
+  };
 
   const fetchAllRecipes = async () => {
     if (!firebase) return;
@@ -79,6 +136,13 @@ export default function AllRecipesPage(): JSX.Element {
     void fetchAllRecipes();
   }, [firebase]);
 
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    setSearchQuery(getTextQueryParam(router.query.text));
+    setSelectedTags(getTagQueryParam(router.query.tag));
+  }, [router.isReady, router.query.tag, router.query.text]);
+
   const filteredRecipes = allRecipes.filter(recipe => {
     const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
     const matchesSearch = !normalizedQuery || recipe.name.toLowerCase().includes(normalizedQuery);
@@ -121,8 +185,8 @@ export default function AllRecipesPage(): JSX.Element {
             listViewActive={listViewActive}
             searchQuery={searchQuery}
             selectedTags={selectedTags}
-            setSearchQuery={setSearchQuery}
-            setSelectedTags={setSelectedTags}
+            setSearchQuery={setSearchQueryFilter}
+            setSelectedTags={setSelectedTagsFilter}
             setListViewActive={setListViewActive}
           />
           {isAuthenticated && (

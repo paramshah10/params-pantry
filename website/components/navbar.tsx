@@ -58,7 +58,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="sticky top-0 w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
+      className={`${isRecipeDetailPage ? '' : '-mb-20'} ${menuActive ? 'min-h-screen' : 'h-20'} sticky top-0 z-50 flex w-full flex-wrap items-center px-8 py-3 transition-colors duration-200`}
       style={navBackgroundStyle}
     >
       <Link href="/" className="inline-flex items-center p-2 mr-4 ">

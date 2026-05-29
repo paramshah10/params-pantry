@@ -269,7 +269,7 @@ export default function RecipePage(props: RecipePageProps) {
 
   return (
     <>
-      <section className="relative grid min-h-[82vh] border-b border-gray-200 bg-white pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <section className="relative grid min-h-[82vh] border-b border-gray-200 bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex min-h-[42vh] items-center justify-center px-6 py-16 sm:px-10 lg:min-h-[82vh] lg:px-16 xl:px-24">
           <div className="w-full max-w-xl text-center lg:text-left">
             <p className="mb-6 inline-flex bg-black px-3 py-2 text-[0.68rem] font-bold uppercase tracking-[0.28em] text-white">

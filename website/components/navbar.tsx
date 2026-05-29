@@ -58,7 +58,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="absolute w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
+      className="sticky top-0 w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
       style={navBackgroundStyle}
     >
       <Link href="/" className="inline-flex items-center p-2 mr-4 ">

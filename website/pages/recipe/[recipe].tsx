@@ -260,53 +260,58 @@ export default function RecipePage(props: RecipePageProps) {
     }
   }, [props, recipeName, router.isReady, firebase]);
 
+  const recipeDetails = [
+    recipeData?.servings ? `${recipeData.servings} ${recipeData.servings === 1 ? 'serving' : 'servings'}` : '',
+    recipeData?.durationMinutes ? `${recipeData.durationMinutes} min` : '',
+  ].filter(Boolean);
+  const recipeTags = recipeData?.tags ?? [];
+
   return (
     <>
-      <div className="flex flex-col justify-center items-center relative w-full h-[75vh] mb-32">
-        <div
-          className={
-            `-z-50 mx-0 my-0 overflow-hidden h-screen w-full absolute 
-          bg-no-repeat bg-center bg-fixed bg-cover`
-          }
-          style={{ backgroundImage: `url('${recipeData?.image}')` }}
-        // Bg image properties taken from https://css-tricks.com/perfect-full-page-background-image/
-        />
-        <h1 className="z-30 lg:text-8xl md:text-7xl text-6xl text-center font-bold text-white cursor-text">
-          {recipeData?.name}
-        </h1>
-        {(recipeData?.durationMinutes || recipeData?.servings) && (
-          <div className="z-30 mt-4 text-center text-sm font-semibold tracking-wide text-white/90">
-            <p>
-              (
-              {recipeData?.servings && (
-                <>
-                  {' '}
-                  serves:
-                  {' '}
-                  {recipeData.servings}
-                </>
-              )}
-              {recipeData?.servings && recipeData?.durationMinutes && ', '}
-              {recipeData?.durationMinutes && (
-                <>
-                  time:
-                  {' '}
-                  {recipeData.durationMinutes}
-                  {' '}
-                  min
-                </>
-              )}
-              {' '}
-              )
+      <section className="relative grid min-h-[82vh] border-b border-gray-200 bg-white pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:pt-0">
+        <div className="flex min-h-[42vh] items-center justify-center px-6 py-16 sm:px-10 lg:min-h-[82vh] lg:px-16 xl:px-24">
+          <div className="w-full max-w-xl text-center lg:text-left">
+            <p className="mb-6 inline-flex bg-black px-3 py-2 text-[0.68rem] font-bold uppercase tracking-[0.28em] text-white">
+              Recipes
             </p>
+            <h1 className="text-5xl font-black leading-[1.03] tracking-normal text-black sm:text-6xl lg:text-7xl xl:text-8xl">
+              {recipeData?.name || 'Recipe'}
+            </h1>
+            {(recipeDetails.length > 0 || recipeTags.length > 0) && (
+              <div className="mt-8 flex flex-col items-center gap-5 lg:items-start">
+                {recipeDetails.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-bold uppercase tracking-[0.2em] text-gray-950 lg:justify-start">
+                    {recipeDetails.map(detail => (
+                      <span key={detail}>{detail}</span>
+                    ))}
+                  </div>
+                )}
+                {recipeTags.length > 0 && (
+                  <div className="flex max-w-md flex-wrap justify-center gap-2 lg:justify-start">
+                    {recipeTags.map(tag => (
+                      <span
+                        key={tag}
+                        className="border border-gray-300 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-700"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
-        {
-          isAuthenticated
-            ? <EditPictureButton updateFirebaseImage={updateFirebaseImage} />
-            : <></>
-        }
-      </div>
+        </div>
+        <div className="relative min-h-[48vh] overflow-hidden lg:min-h-[82vh]">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${recipeData?.image}')` }}
+          />
+          {isAuthenticated && (
+            <EditPictureButton updateFirebaseImage={updateFirebaseImage} />
+          )}
+        </div>
+      </section>
       {/* Responsive content container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mx-auto max-w-7xl">

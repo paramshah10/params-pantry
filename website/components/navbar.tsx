@@ -1,5 +1,6 @@
 import Hamburger from 'hamburger-react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../pages/_app';
 
@@ -10,6 +11,7 @@ interface Page {
 
 const Navbar = () => {
   const { signIn, signOut, isAuthenticated } = useContext(AppContext);
+  const router = useRouter();
   const [menuActive, setMenuActive] = useState(false);
   const [navbarOpacity, setNavbarOpacity] = useState(0);
 
@@ -29,9 +31,11 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const isRecipeDetailPage = router.pathname === '/recipe/[recipe]';
+  const effectiveNavbarOpacity = isRecipeDetailPage ? 1 : navbarOpacity;
   const navBackgroundStyle = menuActive
     ? { backgroundColor: 'rgb(0 0 0)' }
-    : { backgroundColor: `rgba(0, 0, 0, ${navbarOpacity})` };
+    : { backgroundColor: `rgba(0, 0, 0, ${effectiveNavbarOpacity})` };
 
   const pages: Page[] = [
     {
@@ -54,7 +58,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="fixed w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
+      className="absolute w-full flex items-center flex-wrap py-3 px-8 z-50 transition-colors duration-200"
       style={navBackgroundStyle}
     >
       <Link href="/" className="inline-flex items-center p-2 mr-4 ">

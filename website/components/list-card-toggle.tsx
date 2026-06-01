@@ -82,6 +82,7 @@ interface TagFiltersProps {
 
 function TagFilterDropdown({ availableTags, selectedTags, setSelectedTags }: TagFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [tagSearchQuery, setTagSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -117,15 +118,19 @@ function TagFilterDropdown({ availableTags, selectedTags, setSelectedTags }: Tag
     : selectedTags.length === 1
       ? selectedTags[0]
       : `${selectedTags.length} tags`;
+  const normalizedTagSearchQuery = tagSearchQuery.trim().toLowerCase();
+  const visibleTags = normalizedTagSearchQuery
+    ? availableTags.filter(tag => tag.toLowerCase().includes(normalizedTagSearchQuery))
+    : availableTags;
 
   return (
-    <div ref={dropdownRef} className="relative lg:flex-shrink-0">
+    <div ref={dropdownRef} className="relative w-full lg:w-auto lg:flex-shrink-0">
       <button
         type="button"
         onClick={() => setIsOpen(currentValue => !currentValue)}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        className={`inline-flex h-12 min-w-40 items-center justify-between gap-3 rounded-2xl border bg-white px-4 text-sm font-semibold shadow-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+        className={`inline-flex h-12 w-full min-w-40 items-center justify-between gap-3 rounded-2xl border bg-white px-4 text-sm font-semibold shadow-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 lg:w-auto ${
           selectedTags.length > 0
             ? 'border-black text-gray-900'
             : 'border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-100'
@@ -144,7 +149,7 @@ function TagFilterDropdown({ availableTags, selectedTags, setSelectedTags }: Tag
         </svg>
       </button>
       {isOpen && (
-        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-72 rounded-2xl border border-gray-200 bg-white p-3 shadow-xl">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 w-full rounded-2xl border border-gray-200 bg-white p-3 shadow-xl lg:left-auto lg:w-80">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-500">
               Filter By Tag
@@ -159,9 +164,31 @@ function TagFilterDropdown({ availableTags, selectedTags, setSelectedTags }: Tag
               </button>
             )}
           </div>
+          <label className="mb-3 flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 focus-within:border-black focus-within:ring-2 focus-within:ring-black/10">
+            <svg
+              className="h-4 w-4 flex-shrink-0 text-gray-500"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              aria-hidden="true"
+            >
+              <path d="M8.5 14a5.5 5.5 0 1 1 3.89-1.61L17 17" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <input
+              type="search"
+              name="tag-search"
+              value={tagSearchQuery}
+              onChange={event => setTagSearchQuery(event.target.value)}
+              placeholder="Type a tag…"
+              aria-label="Search tags"
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
+            />
+          </label>
           <div className="max-h-64 overflow-y-auto pr-1">
             <div className="flex flex-col gap-2">
-              {availableTags.map(tag => {
+              {visibleTags.map(tag => {
                 const isSelected = selectedTags.includes(tag);
 
                 return (
@@ -183,6 +210,11 @@ function TagFilterDropdown({ availableTags, selectedTags, setSelectedTags }: Tag
                   </button>
                 );
               })}
+              {visibleTags.length === 0 && (
+                <p className="px-3 py-4 text-sm text-gray-500">
+                  No tags match.
+                </p>
+              )}
             </div>
           </div>
         </div>

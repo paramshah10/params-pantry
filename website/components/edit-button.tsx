@@ -54,7 +54,7 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
   return (
     // Modal Opaque Background
     <div
-      className="fixed w-full h-full top-0 bg-white/50 z-50 cursor-pointer flex justify-center items-center"
+      className="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-white/50 px-4"
       onClick={e => {
         // only if the clicked target is the current element. i.e. don't close the modal
         // when clicking on the child components
@@ -62,9 +62,9 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
       }}
     >
       {/* Modal box */}
-      <div className="cursor-default w-5/12 drop-shadow-md">
+      <div className="w-full max-w-2xl cursor-default drop-shadow-md">
         {/* Modal content box */}
-        <div className="rounded bg-white p-6 mx-auto w-10/12">
+        <div className="mx-auto w-full rounded bg-white p-6">
           <ImageUploading
             value={images}
             onChange={onChange}
@@ -88,14 +88,14 @@ const EditImageModal = ({ setRenderModal, updateFirebaseImage }: EditImageModalP
                 >
                   {
                     imageUploaded
-                      ? <img src={imageList[0].dataURL} alt="Recipe image you just uploaded" className="max-h-[48rem]" />
+                      ? <img src={imageList[0].dataURL} alt="Recipe image you just uploaded" className="max-h-[70vh] max-w-full" />
                       : 'Click or Drop Image here'
                   }
                 </div>
                 {
                   imageUploaded
                     ? (
-                        <div className="grid grid-cols-2 gap-12 m-12 h-8 text-white">
+                        <div className="m-6 grid grid-cols-2 gap-4 text-white sm:m-12 sm:gap-12">
                           <button className="rounded drop-shadow-md border border-black bg-blue-500" onClick={() => onFirebaseImageUpload(imageList[0].dataURL ?? '')}>Upload</button>
                           <button className="rounded drop-shadow-md border border-black bg-red-500" onClick={() => { onImageRemove(0); setImageUploaded(false); }}>Remove</button>
                         </div>
